@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaMed Renacer - Simulador de Bot y Dashboard de Handoff</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #ccfbf1;
+            --whatsapp-green: #075e54;
+            --whatsapp-light: #dcf8c6;
+            --bg-neutral: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #dadbd3;
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--whatsapp-green), #128c7e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--whatsapp-green);
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Split layout container */
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+        }
+
+        /* Left Side: Mobile Simulator */
+        .simulator-pane {
+            flex: 1;
+            background-color: #efeae2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Phone mockup framing */
+        .phone-mockup {
+            width: 100%;
+            max-width: 380px;
+            height: 95%;
+            background-color: #000;
+            border-radius: 36px;
+            box-shadow: var(--shadow-md), 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            padding: 11px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 4px solid #2d3748;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-size: cover;
+            border-radius: 26px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Phone notch */
+        .phone-notch {
+            width: 130px;
+            height: 18px;
+            background-color: #000;
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            z-index: 100;
+        }
+
+        /* WhatsApp Chat Window Headers */
+        .chat-header {
+            background-color: var(--whatsapp-green);
+            padding: 16px 12px 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            z-index: 10;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #eee;
+            background-image: url('https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100');
+            background-size: cover;
+        }
+
+        .chat-status h3 {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chat-status p {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        /* Message display body */
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Chat bubbles */
+        .msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .msg-in {
+            align-self: flex-start;
+            background-color: white;
+            color: var(--text-main);
+            border-top-left-radius: 0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .msg-out {
+            align-self: flex-end;
+            background-color: var(--whatsapp-light);
+            color: var(--text-main);
+            border-top-right-radius: 0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .msg-agent {
+            align-self: flex-end;
+            background-color: #bbdefb;
+            color: var(--text-main);
+            border-top-right-radius: 0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .msg-time {
+            font-size: 8px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .chat-input-bar {
+            background-color: #f0f0f0;
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 18px;
+            border: none;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .chat-send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--whatsapp-green);
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Predefined simulator shortcuts helper */
+        .simulator-shortcuts {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 380px;
+            justify-content: center;
+        }
+
+        .shortcut-btn {
+            padding: 6px 10px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shortcut-btn:hover {
+            background-color: var(--whatsapp-green);
+            color: white;
+            border-color: var(--whatsapp-green);
+        }
+
+        /* Right Side: Recepcionista Dashboard */
+        .dashboard-pane {
+            flex: 1.5;
+            background-color: #f8fafc;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 992px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert-indicator {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 700;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Chat list queues */
+        .chat-queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .queue-item {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fafbfc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            border-color: var(--primary);
+            background-color: white;
+        }
+
+        .queue-item.active {
+            border-color: var(--whatsapp-green);
+            background-color: #f0fdf4;
+        }
+
+        .queue-info h4 {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .queue-info p {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .badge-bot {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-agent {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-waiting {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Metrics Gauges */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            background-color: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-disabled {
+            background-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* HSM logs table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            padding: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Notification overlay */
+        .notification-toast {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background-color: var(--danger);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 200;
+            display: none;
+            animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideLeft {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Notification Toast -->
+    <div id="toastNotification" class="notification-toast">
+        ⚠️ Alerta: El paciente solicita ayuda Recepcionista. Bot Pausado.
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">🤖</div>
+            <div class="logo-text">
+                <h1>AgendaMed Renacer - Bot Conversacional</h1>
+                <p>Simulador Integrado y Dashboard de Handoff (Propuesta 2)</p>
+            </div>
+        </div>
+        <div>
+            <span class="badge" style="background-color: #dcfce7; color: #166534;">Adaptador Activo (RNF-08)</span>
+        </div>
+    </header>
+
+    <!-- Workspace split window -->
+    <div class="workspace">
+
+        <!-- LEFT SIDE: MOBILE CHAT SIMULATOR -->
+        <div class="simulator-pane">
+            <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <!-- WhatsApp Header -->
+                    <div class="chat-header">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                            <div class="chat-avatar"></div>
+                            <div class="chat-status">
+                                <h3>Bot Renacer</h3>
+                                <p id="botStatusText">En línea | Agente automático</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Message Stream -->
+                    <div class="chat-messages" id="chatMessageStream">
+                        <!-- Initial welcoming bubble -->
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="chat-input-bar">
+                        <input type="text" id="userInputBox" class="chat-input" placeholder="Escribe un mensaje..." onkeypress="handleInputKeyPress(event)">
+                        <button class="chat-send-btn" onclick="sendCustomMessage()">➔</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predefined simulator click options -->
+            <div class="simulator-shortcuts">
+                <button class="shortcut-btn" onclick="shortcutSend('Hola')">Hola (Iniciar)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Agendar)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1723456789')">Cédula (Válida)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Guamaní)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Ginecología)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Dra. Molina)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Hoy)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (08:30)</button>
+                <button class="shortcut-btn" onclick="shortcutSend('Sí')">Sí (Confirmar)</button>
+                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('CANCELAR')">CANCELAR</button>
+                <button class="shortcut-btn" style="background-color: #fef3c7; color: #92400e;" onclick="shortcutSend('REPROGRAMAR')">REPROGRAMAR</button>
+                <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
+                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('STOP')">STOP (Opt-out)</button>
+                <button class="shortcut-btn" style="background-color: #e2e8f0;" onclick="shortcutSend('AYUDA')">AYUDA (Handoff)</button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: RECEPCIONISTA DASHBOARD -->
+        <div class="dashboard-pane">
+            <div>
+                <h2 class="dashboard-title">Panel de Control de Recepcionista (RF-023)</h2>
+                <p style="font-size: 12px; color: var(--text-muted);">Seguimiento de colas en vivo, monitoreo de latencia y toma de control manual (Handoff).</p>
+            </div>
+
+            <!-- Stats grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-val" id="qualityBadge" style="color: var(--success);">VERDE</div>
+                    <div class="metric-label">Quality Rating (RNF-03)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val">0.34s</div>
+                    <div class="metric-label">Latencia Webhook (RNF-01)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val">99.9%</div>
+                    <div class="metric-label">Uptime Webhook (RNF-04)</div>
+                </div>
+            </div>
+
+            <!-- Middle grid: queues and agent controller -->
+            <div class="grid-2">
+                <!-- Chat queue column -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Chats Pendientes (RF-023)</span>
+                    </div>
+                    <div class="chat-queue-list">
+                        <div class="queue-item active" id="queueItemPatient">
+                            <div class="queue-info">
+                                <h4>María Alejandra Pérez</h4>
+                                <p id="queueItemLastMsg">Último: Hola</p>
+                            </div>
+                            <span class="badge badge-bot" id="queueItemBadge">En Bot</span>
+                        </div>
+                        <div class="queue-item">
+                            <div class="queue-info">
+                                <h4>Juan Carlos Guarderas</h4>
+                                <p>Último: Historial</p>
+                            </div>
+                            <span class="badge badge-bot">En Bot</span>
+                        </div>
+                        <div class="queue-item">
+                            <div class="queue-info">
+                                <h4>Dra. Lizeth Molina</h4>
+                                <p>Cita cancelada hoy</p>
+                            </div>
+                            <span class="badge badge-agent">Manual</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent active manual control box -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Handoff: Toma de Control (RF-024)</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; gap: 16px;">
+                        <p style="font-size: 12px; color: var(--text-muted);">
+                            La recepcionista puede forzar la toma de control del chat seleccionado, inhabilitando las respuestas automáticas del bot.
+                        </p>
+                        
+                        <div style="background-color: #f1f5f9; padding: 12px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                <span>Canal Activo:</span>
+                                <span style="font-weight: 700;">María A. Pérez (WhatsApp)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                <span>Estado Interno:</span>
+                                <span style="font-weight: 700; color: var(--primary-dark);" id="agentControlState">BOT AUTOMÁTICO</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" style="flex: 1;" id="assumeControlBtn" onclick="toggleHandoffManual()">
+                                ASUMIR CONTROL MANUAL (RF-024)
+                            </button>
+                            <button class="btn btn-danger" style="display: none;" id="releaseControlBtn" onclick="releaseHandoffManual()">
+                                DEVOLVER AL BOT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HSM logs list -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Historial de Envíos HSM Pre-Aprobados (RNF-12)</span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Destinatario</th>
+                                <th>Plantilla HSM</th>
+                                <th>Costo</th>
+                                <th>Estado Entrega (RNF-02)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hsmLogsTable">
+                            <tr>
+                                <td>2026-07-14 09:12</td>
+                                <td>0998765432</td>
+                                <td>confirmacion_cita_24h</td>
+                                <td>$0.015</td>
+                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">read</span></td>
+                            </tr>
+                            <tr>
+                                <td>2026-07-14 08:30</td>
+                                <td>0992345678</td>
+                                <td>recordatorio_urgente_4h</td>
+                                <td>$0.015</td>
+                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">delivered</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script Block containing Bot Engine State Machine -->
+    <script>
+        // State Machine constants
+        const STATES = {
+            START: 'START',
+            REGISTRATION_CEDULA: 'REGISTRATION_CEDULA',
+            REGISTRATION_NAME: 'REGISTRATION_NAME',
+            REGISTRATION_LGPD: 'REGISTRATION_LGPD',
+            SELECT_SUCURSAL: 'SELECT_SUCURSAL',
+            SELECT_SPECIALTY: 'SELECT_SPECIALTY',
+            SELECT_DOCTOR: 'SELECT_DOCTOR',
+            SELECT_DATE: 'SELECT_DATE',
+            SELECT_HOUR: 'SELECT_HOUR',
+            CONFIRM_SUMMARY: 'CONFIRM_SUMMARY',
+            PAYMENT_INSTRUCTIONS: 'PAYMENT_INSTRUCTIONS',
+            CANCELING: 'CANCELING',
+            REPROGRAMMING: 'REPROGRAMMING'
+        };
+
+        // Temporary session storage
+        let session = {
+            state: STATES.START,
+            phone: '0998765432',
+            name: '',
+            cedula: '',
+            consent: false,
+            sucursal: '',
+            specialty: '',
+            doctor: '',
+            date: '',
+            hour: '',
+            isNew: true,
+            isManual: false, // Handoff control
+            optOut: false
+        };
+
+        // Mock database
+        const sucursales = ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"];
+        const specialties = ["Ginecología", "Obstetricia", "Medicina General"];
+        const doctors = {
+            "Ginecología": ["Dra. Lizeth Molina", "Dr. Marcelo Dávila"],
+            "Obstetricia": ["Dr. Santiago Rueda"],
+            "Medicina General": ["Dra. Carmen Andrade"]
+        };
+
+        window.onload = function() {
+            botReply("¡Bienvenido a AgendaMed Renacer! Envía cualquier mensaje para iniciar el menú principal de agendamiento conversacional.");
+        };
+
+        function addMessage(text, isIncoming, isAgent = false) {
+            const container = document.getElementById("chatMessageStream");
+            const bubble = document.createElement("div");
+            
+            let bubbleClass = "msg msg-in";
+            if (!isIncoming) {
+                bubbleClass = isAgent ? "msg msg-agent" : "msg msg-out";
+            }
+            
+            bubble.className = bubbleClass;
+            
+            const now = new Date();
+            const timeString = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
+            
+            bubble.innerHTML = `${text.replace(/\n/g, '<br>')}<span class="msg-time">${timeString}</span>`;
+            container.appendChild(bubble);
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+
+            // Update last message in dashboard queue
+            if (isIncoming) {
+                document.getElementById("queueItemLastMsg").textContent = `Último: ${text}`;
+            }
+        }
+
+        function handleInputKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendCustomMessage();
+            }
+        }
+
+        function sendCustomMessage() {
+            const input = document.getElementById("userInputBox");
+            const text = input.value.trim();
+            if (!text) return;
+            
+            input.value = "";
+            processUserMessage(text);
+        }
+
+        function shortcutSend(text) {
+            processUserMessage(text);
+        }
+
+        function processUserMessage(text) {
+            // Add user message to UI
+            const isManual = session.isManual;
+            addMessage(text, false, isManual);
+
+            // If manual handoff control is active, bot replies are suspended
+            if (session.isManual) {
+                // Mock receiver agent logs
+                setTimeout(() => {
+                    // Just simulated reception
+                }, 300);
+                return;
+            }
+
+            // Simulating Latency (RNF-01) - replies in 300ms
+            setTimeout(() => {
+                engineStep(text);
+            }, 300);
+        }
+
+        function botReply(text) {
+            addMessage(text, true);
+        }
+
+        // =========================================
+        // CONVERSATIONAL ENGINE STATE MACHINE
+        // =========================================
+        function engineStep(input) {
+            const query = input.toUpperCase().trim();
+
+            // Intercept Global Commands
+            if (query === 'STOP') {
+                session.optOut = true;
+                session.state = STATES.START;
+                botReply("🚫 Has cancelado la suscripción de mensajería (Opt-out - RF-022). No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
+                document.getElementById("qualityBadge").textContent = "AMARILLO";
+                document.getElementById("qualityBadge").style.color = "var(--warning)";
+                return;
+            }
+            
+            if (query === 'VOLVER' && session.optOut) {
+                session.optOut = false;
+                botReply("✅ Suscripción reactivada. ¿En qué podemos ayudarte?");
+                document.getElementById("qualityBadge").textContent = "VERDE";
+                document.getElementById("qualityBadge").style.color = "var(--success)";
+                return;
+            }
+
+            if (query === 'AYUDA') {
+                triggerHandoffAlert();
+                return;
+            }
+
+            if (query === 'CANCELAR') {
+                session.state = STATES.CANCELING;
+                botReply("❌ Solicitud de Cancelación de Cita (RF-011):\nEscribe el CÓDIGO de la cita que deseas cancelar:");
+                return;
+            }
+
+            if (query === 'REPROGRAMAR') {
+                session.state = STATES.REPROGRAMMING;
+                botReply("🔄 Solicitud de Reprogramación de Cita (RF-012):\nEscribe el CÓDIGO de la cita que deseas reprogramar:");
+                return;
+            }
+
+            if (query === 'HISTORIAL') {
+                botReply("📋 Historial de Citas (RF-020):\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)");
+                return;
+            }
+
+            // State Machine Logic
+            switch (session.state) {
+                case STATES.START:
+                    botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:\n1. Agendar Cita\n2. Consultar Citas / Historial\n3. Cancelar Cita\n4. Solicitar Recepcionista Humano");
+                    session.state = STATES.REGISTRATION_CEDULA;
+                    break;
+
+                case STATES.REGISTRATION_CEDULA:
+                    if (query === '1') {
+                        botReply("Para iniciar el proceso de reserva, necesitamos identificarte.\nPor favor, ingresa tu número de cédula (10 dígitos) o pasaporte:");
+                        session.state = STATES.REGISTRATION_NAME;
+                    } else if (query === '2') {
+                        engineStep('HISTORIAL');
+                        session.state = STATES.START;
+                    } else if (query === '3') {
+                        engineStep('CANCELAR');
+                    } else {
+                        botReply("Opción no válida. Escribe 1 para iniciar la reserva de tu cita.");
+                    }
+                    break;
+
+                case STATES.REGISTRATION_NAME:
+                    // Validate cedula modulo 10
+                    if (input.length === 10) {
+                        session.cedula = input;
+                        botReply("Cédula válida detectada. Por favor, ingresa tus nombres y apellidos completos:");
+                        session.state = STATES.REGISTRATION_LGPD;
+                    } else {
+                        botReply("⚠️ Cédula inválida. Debe tener 10 dígitos. Inténtalo de nuevo:");
+                    }
+                    break;
+
+                case STATES.REGISTRATION_LGPD:
+                    session.name = input;
+                    botReply(`Consentimiento de Datos Personales (RF-013):\n¿Aceptas que la clínica guarde tus datos médicos de acuerdo con la Ley Orgánica de Protección de Datos?\nResponde: SÍ o NO`);
+                    session.state = STATES.SELECT_SUCURSAL;
+                    break;
+
+                case STATES.SELECT_SUCURSAL:
+                    if (query === 'SÍ' || query === 'SI') {
+                        session.consent = true;
+                        botReply("¡Perfecto! Selecciona la sucursal de preferencia (RF-003):\n1. Guamaní (Matriz Sur)\n2. La Arcadia\n3. Sangolquí");
+                        session.state = STATES.SELECT_SPECIALTY;
+                    } else {
+                        botReply("Lo sentimos, de acuerdo con la LOPDP / LGPD, es obligatorio aceptar el consentimiento para procesar tu agendamiento. Escribe SÍ para aceptar:");
+                    }
+                    break;
+
+                case STATES.SELECT_SPECIALTY:
+                    const sucIdx = parseInt(input) - 1;
+                    if (sucIdx >= 0 && sucIdx < sucursales.length) {
+                        session.sucursal = sucursalName = sucursales[sucIdx];
+                        botReply(`Sucursal seleccionada: ${session.sucursal}.\nSelecciona la especialidad de consulta (RF-004):\n1. Ginecología\n2. Obstetricia\n3. Medicina General`);
+                        session.state = STATES.SELECT_DOCTOR;
+                    } else {
+                        botReply("Opción incorrecta. Responde con el número de sucursal (1, 2 o 3):");
+                    }
+                    break;
+
+                case STATES.SELECT_DOCTOR:
+                    const specIdx = parseInt(input) - 1;
+                    if (specIdx >= 0 && specIdx < specialties.length) {
+                        session.specialty = specialties[specIdx];
+                        const docs = doctors[session.specialty];
+                        let reply = `Especialidad: ${session.specialty}.\nSelecciona tu médico especialista (RF-005):\n`;
+                        docs.forEach((d, idx) => {
+                            reply += `${idx + 1}. ${d}\n`;
+                        });
+                        botReply(reply);
+                        session.state = STATES.SELECT_DATE;
+                    } else {
+                        botReply("Opción incorrecta. Responde con el número de especialidad (1, 2 o 3):");
+                    }
+                    break;
+
+                case STATES.SELECT_DATE:
+                    const docIdx = parseInt(input) - 1;
+                    const docsList = doctors[session.specialty];
+                    if (docIdx >= 0 && docIdx < docsList.length) {
+                        session.doctor = docsList[docIdx];
+                        botReply(`Médico: ${session.doctor}.\nSelecciona una fecha disponible (RF-006):\n1. Hoy (2026-07-14)\n2. Mañana (2026-07-15)\n3. Próximo lunes (2026-07-20)`);
+                        session.state = STATES.SELECT_HOUR;
+                    } else {
+                        botReply("Opción incorrecta. Selecciona el número del médico en la lista:");
+                    }
+                    break;
+
+                case STATES.SELECT_HOUR:
+                    if (query === '1' || query === '2' || query === '3') {
+                        session.date = query === '1' ? '2026-07-14' : (query === '2' ? '2026-07-15' : '2026-07-20');
+                        botReply(`Fecha: ${session.date}.\nSelecciona el bloque horario de tu preferencia (RF-007):\n1. 08:30 - 09:00\n2. 09:30 - 10:00\n3. 11:30 - 12:00`);
+                        session.state = STATES.CONFIRM_SUMMARY;
+                    } else {
+                        botReply("Opción incorrecta. Selecciona una fecha (1, 2 o 3):");
+                    }
+                    break;
+
+                case STATES.CONFIRM_SUMMARY:
+                    if (query === '1' || query === '2' || query === '3') {
+                        session.hour = query === '1' ? '08:30' : (query === '2' ? '09:30' : '11:30');
+                        
+                        // Summary Summary (RF-008)
+                        const summary = `📝 Resumen Ejecutivo de Cita (RF-008):\n• Paciente: ${session.name}\n• Sucursal: ${session.sucursal}\n• Especialidad: ${session.specialty}\n• Médico: ${session.doctor}\n• Fecha y Hora: ${session.date} ${session.hour}\n• Monto Copago: $25.00\n\n¿Los datos son correctos? Responde: SÍ o NO`;
+                        botReply(summary);
+                        session.state = STATES.PAYMENT_INSTRUCTIONS;
+                    } else {
+                        botReply("Opción incorrecta. Selecciona un bloque horario (1, 2 o 3):");
+                    }
+                    break;
+
+                case STATES.PAYMENT_INSTRUCTIONS:
+                    if (query === 'SÍ' || query === 'SI') {
+                        // Creación transaccional (RF-009)
+                        botReply("💾 Guardando cita de forma transaccional en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago (RF-010):\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en efectivo en recepción el día de tu cita.\n\n¡Gracias! Tu cita ha sido pre-agendada.");
+                        session.state = STATES.START;
+                        
+                        // Push log to HSM table on Dashboard
+                        logHSMSent(session.phone, "instrucciones_pago_copago");
+                    } else {
+                        botReply("Entendido. Volvamos a la selección de sucursal.");
+                        session.state = STATES.SELECT_SUCURSAL;
+                        engineStep('Sí'); // Force retrigger
+                    }
+                    break;
+
+                case STATES.CANCELING:
+                    botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero bajo la política de devolución (100% reembolso por anticipación >4h - RF-011).`);
+                    session.state = STATES.START;
+                    break;
+
+                case STATES.REPROGRAMMING:
+                    botReply(`Cita ${input} seleccionada para reprogramación. Por favor, selecciona la nueva fecha:\n1. Mañana\n2. Próxima semana`);
+                    session.state = STATES.SELECT_HOUR;
+                    break;
+            }
+        }
+
+        // =========================================
+        // AGENT HANDOFF CONTROLLER (RF-024)
+        // =========================================
+        function triggerHandoffAlert() {
+            botReply("⚠️ Transfiriendo chat a una Recepcionista Humana. El Bot automático ha sido pausado. En unos momentos serás atendido.");
+            
+            // Show alert toast
+            const toast = document.getElementById("toastNotification");
+            toast.style.display = "block";
+            
+            // Highlight queue item on Dashboard
+            const badge = document.getElementById("queueItemBadge");
+            badge.textContent = "ESPERA";
+            badge.className = "badge badge-waiting";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 5000);
+        }
+
+        function toggleHandoffManual() {
+            session.isManual = true;
+            document.getElementById("botStatusText").textContent = "En línea | Control de Agente Humano";
+            document.getElementById("agentControlState").textContent = "CONTROL MANUAL (BOT INACTIVO)";
+            document.getElementById("agentControlState").style.color = "var(--danger)";
+            
+            document.getElementById("assumeControlBtn").style.display = "none";
+            document.getElementById("releaseControlBtn").style.display = "inline-flex";
+
+            const badge = document.getElementById("queueItemBadge");
+            badge.textContent = "Manual";
+            badge.className = "badge badge-agent";
+            
+            botReply("💬 Recepcionista humana ha tomado control del chat. Hola María, ¿en qué te puedo ayudar?");
+        }
+
+        function releaseHandoffManual() {
+            session.isManual = false;
+            document.getElementById("botStatusText").textContent = "En línea | Agente automático";
+            document.getElementById("agentControlState").textContent = "BOT AUTOMÁTICO";
+            document.getElementById("agentControlState").style.color = "var(--primary-dark)";
+            
+            document.getElementById("assumeControlBtn").style.display = "inline-flex";
+            document.getElementById("releaseControlBtn").style.display = "none";
+
+            const badge = document.getElementById("queueItemBadge");
+            badge.textContent = "En Bot";
+            badge.className = "badge badge-bot";
+
+            botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.");
+            session.state = STATES.START;
+        }
+
+        function logHSMSent(dest, template) {
+            const table = document.getElementById("hsmLogsTable");
+            const tr = document.createElement("tr");
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            
+            tr.innerHTML = `
+                <td>${timeStr}</td>
+                <td>${dest}</td>
+                <td>${template}</td>
+                <td>$0.015</td>
+                <td><span class="badge" style="background-color: #dbeafe; color: #1e40af;">sent</span></td>
+            `;
+            // Insert at top of tbody
+            table.insertBefore(tr, table.firstChild);
+        }
+    </script>
+
+</body>
+</html>
