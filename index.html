@@ -659,6 +659,9 @@
                 <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
                 <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('STOP')">STOP (Opt-out)</button>
                 <button class="shortcut-btn" style="background-color: #e2e8f0;" onclick="shortcutSend('AYUDA')">AYUDA (Handoff)</button>
+                <button class="shortcut-btn" style="background-color: #d1fae5; color: #065f46;" onclick="shortcutSend('PREFERENCIAS')">PREFERENCIAS</button>
+                <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('MENÚ')">MENÚ</button>
+                <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('ATRÁS')">ATRÁS</button>
             </div>
         </div>
 
@@ -746,6 +749,18 @@
                                 DEVOLVER AL BOT
                             </button>
                         </div>
+                        
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px;">
+                            <span class="card-title" style="font-size: 11px; display: block; margin-bottom: 8px;">Simular Alertas HSM de Citas:</span>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;" onclick="simulateHSM24h()">
+                                    Recordatorio 24h
+                                </button>
+                                <button class="btn btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;" onclick="simulateHSM4h()">
+                                    Recordatorio Urgente 4h
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -812,6 +827,7 @@
         // Temporary session storage
         let session = {
             state: STATES.START,
+            history: [], // State history stack for ATRÁS (RF-016)
             phone: '0998765432',
             name: '',
             cedula: '',
@@ -823,7 +839,9 @@
             hour: '',
             isNew: true,
             isManual: false, // Handoff control
-            optOut: false
+            optOut: false,
+            prefPromotions: true, // Communication preferences (RF-021)
+            prefReminders: true
         };
 
         // Mock database
@@ -954,9 +972,55 @@
                 return;
             }
 
+            // Intercept navigation and preferences commands (RF-016 & RF-021)
+            if (query === 'MENÚ' || query === 'MENU') {
+                session.state = STATES.START;
+                session.history = [];
+                botReply("🏠 Volviendo al Menú Principal. Selecciona una opción:
+1. Agendar Cita
+2. Consultar Citas / Historial
+3. Cancelar Cita");
+                return;
+            }
+
+            if (query === 'ATRÁS' || query === 'ATRAS') {
+                if (session.history.length > 0) {
+                    const prevState = session.history.pop();
+                    session.state = prevState;
+                    botReply("↩️ Volviendo al paso anterior...");
+                    engineStep('ATRAS_TRIGGER');
+                } else {
+                    botReply("No hay pasos anteriores. Escribe MENÚ para volver al inicio.");
+                }
+                return;
+            }
+
+            if (query === 'PREFERENCIAS') {
+                botReply(`⚙️ Configuración de Preferencias (RF-021):\n1. Alternar Recordatorios (Activos: ${session.prefReminders ? 'SÍ' : 'NO'})\n2. Alternar Promociones (Activos: ${session.prefPromotions ? 'SÍ' : 'NO'})\nResponde 1 o 2 para cambiar, o MENÚ para volver.`);
+                return;
+            }
+
+            // Save state history before transition
+            if (query !== 'ATRAS_TRIGGER') {
+                session.history.push(session.state);
+            } else {
+                // Re-evaluate message for the reverted state
+                query = ""; 
+            }
+
             // State Machine Logic
             switch (session.state) {
                 case STATES.START:
+                    // Process Preferences selection if coming from Preferences state
+                    if (query === '1') {
+                        session.prefReminders = !session.prefReminders;
+                        botReply(`⚙️ Preferencia Actualizada: Recordatorios ahora están ${session.prefReminders ? 'HABILITADOS' : 'DESHABILITADOS'}. Escribe MENÚ para continuar.`);
+                        return;
+                    } else if (query === '2') {
+                        session.prefPromotions = !session.prefPromotions;
+                        botReply(`⚙️ Preferencia Actualizada: Promociones ahora están ${session.prefPromotions ? 'HABILITADOS' : 'DESHABILITADOS'}. Escribe MENÚ para continuar.`);
+                        return;
+                    }
                     botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:\n1. Agendar Cita\n2. Consultar Citas / Historial\n3. Cancelar Cita\n4. Solicitar Recepcionista Humano");
                     session.state = STATES.REGISTRATION_CEDULA;
                     break;
@@ -1142,6 +1206,25 @@
 
             botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.");
             session.state = STATES.START;
+        }
+
+        // Simulated HSM Recordatory triggers (RF-017 & RF-018)
+        function simulateHSM24h() {
+            if (session.optOut || !session.prefReminders) {
+                alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
+                return;
+            }
+            botReply("⏰ [Recordatorio Automático - 24 horas antes]:\nHola María, te recordamos que tienes una cita agendada para mañana a las 08:30 en la sucursal Guamaní con la Dra. Lizeth Molina.\nResponde MENÚ si tienes dudas.");
+            logHSMSent(session.phone, "recordatorio_preventivo_24h");
+        }
+
+        function simulateHSM4h() {
+            if (session.optOut || !session.prefReminders) {
+                alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
+                return;
+            }
+            botReply("⚠️ [Recordatorio Urgente - 4 horas antes]:\nHola María, tu cita médica inicia en 4 horas. Por favor confirma tu asistencia respondiendo SÍ o NO a este mensaje.");
+            logHSMSent(session.phone, "recordatorio_urgente_4h");
         }
 
         function logHSMSent(dest, template) {
