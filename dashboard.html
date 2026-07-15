@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaMed Renacer - Panel de Recepcionista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #ccfbf1;
+            --whatsapp-green: #075e54;
+            --whatsapp-light: #dcf8c6;
+            --bg-neutral: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Left Side Dashboard Columns */
+        .dashboard-col {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        /* Right Side Handoff Chat Window Column */
+        .chat-col {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fafbfc;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .chat-title h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .chat-title p {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            background-color: #efeae2;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-size: cover;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Chat bubbles */
+        .msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .msg-in {
+            align-self: flex-start;
+            background-color: white;
+            color: var(--text-main);
+            border-top-left-radius: 0;
+        }
+
+        .msg-out {
+            align-self: flex-end;
+            background-color: #bbdefb;
+            color: var(--text-main);
+            border-top-right-radius: 0;
+        }
+
+        .msg-time {
+            font-size: 8px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .chat-input-bar {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: #fafbfc;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 13px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Queues */
+        .chat-queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .queue-item {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fafbfc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            border-color: var(--primary);
+            background-color: white;
+        }
+
+        .queue-item.active {
+            border-color: var(--primary);
+            background-color: #f0fdf4;
+        }
+
+        .queue-info h4 {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .queue-info p {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .badge-bot {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-agent {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-waiting {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .metric-card {
+            background-color: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            width: auto;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-neutral);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* HSM logs table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+            min-width: 450px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            padding: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Notification overlay */
+        .notification-toast {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background-color: var(--danger);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 200;
+            display: none;
+            animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideLeft {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Toast -->
+    <div id="toastNotification" class="notification-toast">
+        ⚠️ Alerta: El paciente solicita ayuda Recepcionista. Bot Pausado.
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">💻</div>
+            <div class="logo-text">
+                <h1>AgendaMed Renacer - Panel de Recepcionista</h1>
+                <p>Monitoreo Web en Vivo (Propuesta 2 - Dashboard)</p>
+            </div>
+        </div>
+        <div>
+            <span class="badge" style="background-color: #dcfce7; color: #166534;">WebSocket Activo</span>
+        </div>
+    </header>
+
+    <!-- Workspace split window -->
+    <div class="workspace">
+
+        <!-- LEFT SIDE: DASHBOARD DETAILS & QUEUES -->
+        <div class="dashboard-col">
+            <!-- Stats grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-val" id="qualityBadge" style="color: var(--success);">VERDE</div>
+                    <div class="metric-label">Quality Rating</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val">0.34s</div>
+                    <div class="metric-label">Latencia Webhook</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val">99.9%</div>
+                    <div class="metric-label">Uptime Webhook</div>
+                </div>
+            </div>
+
+            <!-- Middle card: queues and agent controller -->
+            <div class="grid-2">
+                <!-- Chat queue column -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Chats Pendientes</span>
+                    </div>
+                    <div class="chat-queue-list">
+                        <div class="queue-item active" id="queueItemPatient">
+                            <div class="queue-info">
+                                <h4>María Alejandra Pérez</h4>
+                                <p id="queueItemLastMsg">Último: Esperando acción...</p>
+                            </div>
+                            <span class="badge badge-bot" id="queueItemBadge">En Bot</span>
+                        </div>
+                        <div class="queue-item">
+                            <div class="queue-info">
+                                <h4>Juan Carlos Guarderas</h4>
+                                <p>Último: Historial</p>
+                            </div>
+                            <span class="badge badge-bot">En Bot</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent active manual control box -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Handoff: Toma de Control</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; gap: 16px;">
+                        <p style="font-size: 11px; color: var(--text-muted);">
+                            La recepcionista puede forzar la toma de control del chat seleccionado, inhabilitando las respuestas automáticas del bot en el teléfono del paciente.
+                        </p>
+                        
+                        <div style="background-color: #f1f5f9; padding: 12px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                <span>Canal Activo:</span>
+                                <span style="font-weight: 700;">María A. Pérez (WhatsApp)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                <span>Estado Interno:</span>
+                                <span style="font-weight: 700; color: var(--primary-dark);" id="agentControlState">BOT AUTOMÁTICO</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" style="flex: 1;" id="assumeControlBtn" onclick="toggleHandoffManual()">
+                                ASUMIR CONTROL MANUAL
+                            </button>
+                            <button class="btn btn-danger" style="display: none;" id="releaseControlBtn" onclick="releaseHandoffManual()">
+                                DEVOLVER AL BOT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HSM Actions & logs list -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Envíos HSM Pre-Aprobados (Alertas y Recordatorios)</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="sendHSMAlert('HSM_24H')">⏰ Simular Recordatorio 24h</button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="sendHSMAlert('HSM_4H')">⚠️ Recordatorio Urgente 4h</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Destinatario</th>
+                                <th>Plantilla HSM</th>
+                                <th>Costo</th>
+                                <th>Estado Entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hsmLogsTable">
+                            <tr>
+                                <td>2026-07-14 09:12</td>
+                                <td>0998765432</td>
+                                <td>confirmacion_cita_24h</td>
+                                <td>$0.015</td>
+                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">read</span></td>
+                            </tr>
+                            <tr>
+                                <td>2026-07-14 08:30</td>
+                                <td>0992345678</td>
+                                <td>recordatorio_urgente_4h</td>
+                                <td>$0.015</td>
+                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">delivered</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: LIVE ACTIVE CHAT TRANSCRIPT & AGENT SENDING PANEL -->
+        <div class="chat-col">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <h3 id="chatPanelTitle">María Alejandra Pérez</h3>
+                    <p id="chatPanelSubtitle">Canal: WhatsApp | Estado: En Bot</p>
+                </div>
+                <div>
+                    <span class="badge badge-bot" id="chatPanelStatusBadge">En Bot</span>
+                </div>
+            </div>
+            
+            <!-- Message stream mirroring user and bot messages -->
+            <div class="chat-messages" id="dashboardChatMessageStream">
+                <div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 20px 0;">
+                    -- Inicio del Historial de Conversación --
+                </div>
+            </div>
+
+            <!-- Agent Reply Input (Only works if Handoff/Manual is active) -->
+            <div class="chat-input-bar">
+                <input type="text" id="agentInputBox" class="chat-input" placeholder="Asume el control manual para poder responder..." disabled onkeypress="handleAgentKeyPress(event)">
+                <button id="agentSendBtn" class="btn btn-primary" style="padding: 10px; border-radius: 8px;" disabled onclick="sendAgentMessage()">Enviar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Block for real-time synchronization -->
+    <script>
+        let isManual = false;
+        let optOut = false;
+        let prefReminders = true;
+        let phone = '0998765432';
+
+        window.onload = function() {
+            // Check current localStorage state
+            checkSessionState();
+            
+            // Periodically poll localStorage for updates (as fallback to storage event in same window)
+            setInterval(checkSessionState, 1000);
+        };
+
+        // Listen for storage events from the Patient Phone tab
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'session_state') {
+                checkSessionState();
+            } else if (e.key === 'last_message') {
+                const msg = JSON.parse(e.newValue);
+                if (msg) {
+                    appendMirrorMessage(msg.text, msg.isIncoming, msg.isAgent, msg.timestamp);
+                }
+            } else if (e.key === 'patient_chat_msg') {
+                const msg = JSON.parse(e.newValue);
+                if (msg) {
+                    appendMirrorMessage(msg.text, false, false, msg.timestamp);
+                }
+            } else if (e.key === 'handoff_request_alert') {
+                triggerHandoffAlert();
+            } else if (e.key === 'hsm_sent_trigger') {
+                const trigger = JSON.parse(e.newValue);
+                if (trigger) {
+                    logHSMSent(trigger.phone, trigger.template);
+                }
+            }
+        });
+
+        function checkSessionState() {
+            const rawSession = localStorage.getItem('session_state');
+            if (!rawSession) return;
+
+            const session = JSON.parse(rawSession);
+            optOut = session.optOut;
+            prefReminders = session.prefReminders;
+            phone = session.phone;
+            isManual = session.isManual;
+
+            // Update UI based on optOut
+            const qBadge = document.getElementById("qualityBadge");
+            if (optOut) {
+                qBadge.textContent = "AMARILLO";
+                qBadge.style.color = "var(--warning)";
+            } else {
+                qBadge.textContent = "VERDE";
+                qBadge.style.color = "var(--success)";
+            }
+
+            // Sync Handoff Panel UI
+            const agentControlState = document.getElementById("agentControlState");
+            const assumeBtn = document.getElementById("assumeControlBtn");
+            const releaseBtn = document.getElementById("releaseControlBtn");
+            const agentInput = document.getElementById("agentInputBox");
+            const agentBtn = document.getElementById("agentSendBtn");
+            const queueBadge = document.getElementById("queueItemBadge");
+            const panelBadge = document.getElementById("chatPanelStatusBadge");
+            const panelSubtitle = document.getElementById("chatPanelSubtitle");
+
+            if (isManual) {
+                agentControlState.textContent = "CONTROL MANUAL (BOT INACTIVO)";
+                agentControlState.style.color = "var(--danger)";
+                assumeBtn.style.display = "none";
+                releaseBtn.style.display = "inline-flex";
+                
+                agentInput.disabled = false;
+                agentInput.placeholder = "Escribe una respuesta para el paciente...";
+                agentBtn.disabled = false;
+
+                queueBadge.textContent = "Manual";
+                queueBadge.className = "badge badge-agent";
+
+                panelBadge.textContent = "Agente Humano";
+                panelBadge.className = "badge badge-agent";
+                panelSubtitle.textContent = "Canal: WhatsApp | Estado: Agente Humano";
+            } else {
+                agentControlState.textContent = "BOT AUTOMÁTICO";
+                agentControlState.style.color = "var(--primary-dark)";
+                assumeBtn.style.display = "inline-flex";
+                releaseBtn.style.display = "none";
+
+                agentInput.disabled = true;
+                agentInput.placeholder = "Asume el control manual para poder responder...";
+                agentInput.value = "";
+                agentBtn.disabled = true;
+
+                // Only set "En Bot" if it wasn't waiting/waiting
+                if (queueBadge.textContent !== "ESPERA") {
+                    queueBadge.textContent = "En Bot";
+                    queueBadge.className = "badge badge-bot";
+
+                    panelBadge.textContent = "En Bot";
+                    panelBadge.className = "badge badge-bot";
+                    panelSubtitle.textContent = "Canal: WhatsApp | Estado: En Bot";
+                }
+            }
+        }
+
+        function appendMirrorMessage(text, isIncoming, isAgent, timestamp) {
+            const container = document.getElementById("dashboardChatMessageStream");
+            
+            // Check if message already exists in stream (avoid duplicate poll adds)
+            const matches = Array.from(container.querySelectorAll(".msg")).filter(m => m.textContent.includes(text) && m.querySelector(".msg-time").textContent === timestamp);
+            if (matches.length > 0) return;
+
+            const bubble = document.createElement("div");
+            let bubbleClass = "msg msg-in"; // Incoming to dashboard = sent by user
+            if (!isIncoming) {
+                // Sent by bot/agent
+                bubbleClass = "msg msg-out";
+            }
+            if (isAgent) {
+                bubbleClass = "msg msg-out"; // Sent by agent
+            }
+
+            bubble.className = bubbleClass;
+            bubble.innerHTML = `${text.replace(/\n/g, '<br>')}<span class="msg-time">${timestamp}</span>`;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+
+            document.getElementById("queueItemLastMsg").textContent = `Último: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`;
+        }
+
+        function toggleHandoffManual() {
+            // Write action to localStorage for Patient Phone tab
+            localStorage.setItem('dashboard_action', JSON.stringify({
+                type: 'HANDOFF_MANUAL',
+                timestamp: Date.now()
+            }));
+            isManual = true;
+            checkSessionState();
+        }
+
+        function releaseHandoffManual() {
+            localStorage.setItem('dashboard_action', JSON.stringify({
+                type: 'HANDOFF_BOT',
+                timestamp: Date.now()
+            }));
+            isManual = false;
+            checkSessionState();
+        }
+
+        function handleAgentKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendAgentMessage();
+            }
+        }
+
+        function sendAgentMessage() {
+            const input = document.getElementById("agentInputBox");
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = "";
+
+            const now = new Date();
+            const timeString = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
+
+            // Append to dashboard chat stream
+            appendMirrorMessage(text, false, true, timeString);
+
+            // Send action to Patient tab
+            localStorage.setItem('dashboard_action', JSON.stringify({
+                type: 'AGENT_REPLY',
+                message: text,
+                timestamp: Date.now()
+            }));
+        }
+
+        function sendHSMAlert(type) {
+            if (optOut || !prefReminders) {
+                alert("Error de Envío: El paciente canceló recordatorios (Opt-out/Preferencias).");
+                return;
+            }
+
+            localStorage.setItem('dashboard_action', JSON.stringify({
+                type: type,
+                timestamp: Date.now()
+            }));
+
+            // Log to HSM table
+            const template = type === 'HSM_24H' ? 'recordatorio_preventivo_24h' : 'recordatorio_urgente_4h';
+            logHSMSent(phone, template);
+        }
+
+        function logHSMSent(dest, template) {
+            const table = document.getElementById("hsmLogsTable");
+            const tr = document.createElement("tr");
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            
+            tr.innerHTML = `
+                <td>${timeStr}</td>
+                <td>${dest}</td>
+                <td>${template}</td>
+                <td>$0.015</td>
+                <td><span class="badge" style="background-color: #dbeafe; color: #1e40af;">sent</span></td>
+            `;
+            table.insertBefore(tr, table.firstChild);
+        }
+
+        function triggerHandoffAlert() {
+            const toast = document.getElementById("toastNotification");
+            toast.style.display = "block";
+            
+            const badge = document.getElementById("queueItemBadge");
+            badge.textContent = "ESPERA";
+            badge.className = "badge badge-waiting";
+
+            const panelBadge = document.getElementById("chatPanelStatusBadge");
+            panelBadge.textContent = "Espera Handoff";
+            panelBadge.className = "badge badge-waiting";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

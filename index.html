@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgendaMed Renacer - Simulador de Bot y Dashboard de Handoff</title>
+    <title>AgendaMed Renacer - Chatbot WhatsApp (Paciente)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,7 +12,7 @@
             --primary-light: #ccfbf1;
             --whatsapp-green: #075e54;
             --whatsapp-light: #dcf8c6;
-            --bg-neutral: #f0f2f5;
+            --bg-neutral: #e5ddd5;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
@@ -34,81 +34,44 @@
             font-family: 'Inter', sans-serif;
             background-color: #dadbd3;
             color: var(--text-main);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        header {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 64px;
-            box-shadow: var(--shadow-sm);
-            flex-shrink: 0;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--whatsapp-green), #128c7e);
-            display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
+            padding: 20px;
         }
 
-        .logo-text h1 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--whatsapp-green);
-        }
-
-        .logo-text p {
+        /* Top Demo Info Bar */
+        .demo-bar {
+            width: 100%;
+            max-width: 420px;
+            background-color: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
             font-size: 11px;
             color: var(--text-muted);
+            text-align: center;
+            border: 1px solid var(--border-color);
         }
 
-        /* Split layout container */
-        .workspace {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 64px);
-            overflow: hidden;
+        .demo-link {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
         }
 
-        /* Left Side: Mobile Simulator */
-        .simulator-pane {
-            flex: 1;
-            background-color: #efeae2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-right: 1px solid var(--border-color);
-            padding: 20px;
-            position: relative;
+        .demo-link:hover {
+            text-decoration: underline;
         }
 
         /* Phone mockup framing */
         .phone-mockup {
             width: 100%;
             max-width: 380px;
-            height: 95%;
+            height: 640px;
             background-color: #000;
             border-radius: 36px;
             box-shadow: var(--shadow-md), 0 25px 50px -12px rgb(0 0 0 / 0.25);
@@ -148,7 +111,7 @@
         /* WhatsApp Chat Window Headers */
         .chat-header {
             background-color: var(--whatsapp-green);
-            padding: 16px 12px 10px 12px;
+            padding: 20px 12px 10px 12px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -228,7 +191,7 @@
             display: block;
         }
 
-        /* Chat Interactive Button Styling (RF-019) */
+        /* Chat Interactive Button Styling */
         .chat-btn-container {
             display: flex;
             flex-direction: column;
@@ -298,7 +261,7 @@
             font-weight: bold;
         }
 
-        /* Predefined simulator debugging shortcuts helper */
+        /* Predefined simulator shortcuts helper */
         .simulator-shortcuts {
             margin-top: 16px;
             display: flex;
@@ -325,510 +288,57 @@
             color: white;
             border-color: var(--whatsapp-green);
         }
-
-        /* Right Side: Recepcionista Dashboard */
-        .dashboard-pane {
-            flex: 1.5;
-            background-color: #f8fafc;
-            padding: 24px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .dashboard-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 4px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        @media (min-width: 992px) {
-            .grid-2 {
-                grid-template-columns: 1fr 1.2fr;
-            }
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .card-header {
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-main);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .alert-indicator {
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: 700;
-            animation: blink 1.2s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-
-        /* Chat list queues */
-        .chat-queue-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .queue-item {
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: #fafbfc;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .queue-item:hover {
-            border-color: var(--primary);
-            background-color: white;
-        }
-
-        .queue-item.active {
-            border-color: var(--whatsapp-green);
-            background-color: #f0fdf4;
-        }
-
-        .queue-info h4 {
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .queue-info p {
-            font-size: 10px;
-            color: var(--text-muted);
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: 700;
-        }
-
-        .badge-bot {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-agent {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-waiting {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Metrics Gauges */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .metric-card {
-            background-color: #f1f5f9;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .metric-val {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .metric-label {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            outline: none;
-            transition: all 0.2s;
-            text-decoration: none;
-            width: auto;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        /* HSM logs table */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            text-align: left;
-            min-width: 500px;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            padding: 8px;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        td {
-            padding: 8px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        /* Notification overlay */
-        .notification-toast {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            background-color: var(--danger);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-md);
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 200;
-            display: none;
-            animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideLeft {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Mobile Breakpoint max-width 768px */
-        @media (max-width: 768px) {
-            body {
-                height: auto;
-                overflow-y: auto;
-            }
-
-            header {
-                flex-direction: column;
-                height: auto;
-                padding: 12px;
-                gap: 8px;
-            }
-
-            .logo-container {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .workspace {
-                flex-direction: column;
-                height: auto;
-                overflow: visible;
-            }
-
-            .simulator-pane {
-                flex: none;
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-                padding: 16px 12px;
-                height: auto;
-            }
-
-            .phone-mockup {
-                max-width: 100%;
-                height: 560px;
-            }
-
-            .dashboard-pane {
-                flex: none;
-                width: 100%;
-                padding: 16px 12px;
-                height: auto;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-
     </style>
 </head>
 <body>
 
-    <!-- Notification Toast -->
-    <div id="toastNotification" class="notification-toast">
-        ⚠️ Alerta: El paciente solicita ayuda Recepcionista. Bot Pausado.
+    <!-- Demo details bar -->
+    <div class="demo-bar">
+        💻 <strong>Modo Simulación Multiventana:</strong><br>
+        Abre el <a class="demo-link" href="dashboard.html" target="_blank">Panel de Control de Recepcionista ➔</a> en otra pestaña para simular el control de handoff y recordatorios en tiempo real.
     </div>
 
-    <!-- Header Section -->
-    <header>
-        <div class="logo-container">
-            <div class="logo-icon">🤖</div>
-            <div class="logo-text">
-                <h1>AgendaMed Renacer - Bot Conversacional</h1>
-                <p>Simulador Integrado y Dashboard de Handoff (Propuesta 2)</p>
+    <!-- Phone mockup framing -->
+    <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            <!-- WhatsApp Header -->
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                    <div class="chat-avatar"></div>
+                    <div class="chat-status">
+                        <h3>Bot Renacer</h3>
+                        <p id="botStatusText">En línea | Agente automático</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Message Stream -->
+            <div class="chat-messages" id="chatMessageStream">
+                <!-- Initial welcoming bubble -->
+            </div>
+
+            <!-- Input Bar -->
+            <div class="chat-input-bar">
+                <input type="text" id="userInputBox" class="chat-input" placeholder="Escribe un mensaje..." onkeypress="handleInputKeyPress(event)">
+                <button class="chat-send-btn" onclick="sendCustomMessage()">➔</button>
             </div>
         </div>
-        <div>
-            <span class="badge" style="background-color: #dcfce7; color: #166534;">Adaptador Activo</span>
-        </div>
-    </header>
-
-    <!-- Workspace split window -->
-    <div class="workspace">
-
-        <!-- LEFT SIDE: MOBILE CHAT SIMULATOR -->
-        <div class="simulator-pane">
-            <div class="phone-mockup">
-                <div class="phone-notch"></div>
-                <div class="phone-screen">
-                    <!-- WhatsApp Header -->
-                    <div class="chat-header">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                            <div class="chat-avatar"></div>
-                            <div class="chat-status">
-                                <h3>Bot Renacer</h3>
-                                <p id="botStatusText">En línea | Agente automático</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chat Message Stream -->
-                    <div class="chat-messages" id="chatMessageStream">
-                        <!-- Initial welcoming bubble -->
-                    </div>
-
-                    <!-- Input Bar -->
-                    <div class="chat-input-bar">
-                        <input type="text" id="userInputBox" class="chat-input" placeholder="Escribe un mensaje..." onkeypress="handleInputKeyPress(event)">
-                        <button class="chat-send-btn" onclick="sendCustomMessage()">➔</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Predefined simulator click options (Debugging Shortcuts only) -->
-            <div class="simulator-shortcuts">
-                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('STOP')">STOP (Opt-out)</button>
-                <button class="shortcut-btn" style="background-color: #e2e8f0;" onclick="shortcutSend('AYUDA')">AYUDA (Handoff)</button>
-                <button class="shortcut-btn" style="background-color: #d1fae5; color: #065f46;" onclick="shortcutSend('PREFERENCIAS')">PREFERENCIAS</button>
-                <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('MENÚ')">MENÚ</button>
-                <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('ATRÁS')">ATRÁS</button>
-                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('CANCELAR')">CANCELAR</button>
-                <button class="shortcut-btn" style="background-color: #fef3c7; color: #92400e;" onclick="shortcutSend('REPROGRAMAR')">REPROGRAMAR</button>
-                <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
-            </div>
-        </div>
-
-        <!-- RIGHT SIDE: RECEPCIONISTA DASHBOARD -->
-        <div class="dashboard-pane">
-            <div>
-                <h2 class="dashboard-title">Panel de Control de Recepcionista</h2>
-                <p style="font-size: 12px; color: var(--text-muted);">Seguimiento de colas en vivo, monitoreo de latencia y toma de control manual (Handoff).</p>
-            </div>
-
-            <!-- Stats grid -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-val" id="qualityBadge" style="color: var(--success);">VERDE</div>
-                    <div class="metric-label">Quality Rating</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-val">0.34s</div>
-                    <div class="metric-label">Latencia Webhook</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-val">99.9%</div>
-                    <div class="metric-label">Uptime Webhook</div>
-                </div>
-            </div>
-
-            <!-- Middle grid: queues and agent controller -->
-            <div class="grid-2">
-                <!-- Chat queue column -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Chats Pendientes</span>
-                    </div>
-                    <div class="chat-queue-list">
-                        <div class="queue-item active" id="queueItemPatient">
-                            <div class="queue-info">
-                                <h4>María Alejandra Pérez</h4>
-                                <p id="queueItemLastMsg">Último: Hola</p>
-                            </div>
-                            <span class="badge badge-bot" id="queueItemBadge">En Bot</span>
-                        </div>
-                        <div class="queue-item">
-                            <div class="queue-info">
-                                <h4>Juan Carlos Guarderas</h4>
-                                <p>Último: Historial</p>
-                            </div>
-                            <span class="badge badge-bot">En Bot</span>
-                        </div>
-                        <div class="queue-item">
-                            <div class="queue-info">
-                                <h4>Dra. Lizeth Molina</h4>
-                                <p>Cita cancelada hoy</p>
-                            </div>
-                            <span class="badge badge-agent">Manual</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agent active manual control box -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Handoff: Toma de Control</span>
-                    </div>
-                    <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; gap: 16px;">
-                        <p style="font-size: 12px; color: var(--text-muted);">
-                            La recepcionista puede forzar la toma de control del chat seleccionado, inhabilitando las respuestas automáticas del bot.
-                        </p>
-                        
-                        <div style="background-color: #f1f5f9; padding: 12px; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
-                                <span>Canal Activo:</span>
-                                <span style="font-weight: 700;">María A. Pérez (WhatsApp)</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                                <span>Estado Interno:</span>
-                                <span style="font-weight: 700; color: var(--primary-dark);" id="agentControlState">BOT AUTOMÁTICO</span>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-primary" style="flex: 1;" id="assumeControlBtn" onclick="toggleHandoffManual()">
-                                ASUMIR CONTROL MANUAL
-                            </button>
-                            <button class="btn btn-danger" style="display: none;" id="releaseControlBtn" onclick="releaseHandoffManual()">
-                                DEVOLVER AL BOT
-                            </button>
-                        </div>
-
-                        <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px;">
-                            <span class="card-title" style="font-size: 11px; display: block; margin-bottom: 8px;">Simular Alertas HSM de Citas:</span>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;" onclick="simulateHSM24h()">
-                                    Recordatorio 24h
-                                </button>
-                                <button class="btn btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;" onclick="simulateHSM4h()">
-                                    Recordatorio Urgente 4h
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HSM logs list -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Historial de Envíos HSM Pre-Aprobados</span>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>Destinatario</th>
-                                <th>Plantilla HSM</th>
-                                <th>Costo</th>
-                                <th>Estado Entrega</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hsmLogsTable">
-                            <tr>
-                                <td>2026-07-14 09:12</td>
-                                <td>0998765432</td>
-                                <td>confirmacion_cita_24h</td>
-                                <td>$0.015</td>
-                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">read</span></td>
-                            </tr>
-                            <tr>
-                                <td>2026-07-14 08:30</td>
-                                <td>0992345678</td>
-                                <td>recordatorio_urgente_4h</td>
-                                <td>$0.015</td>
-                                <td><span class="badge" style="background-color: #dcfce7; color: #166534;">delivered</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
     </div>
 
-    <!-- Script Block containing Bot Engine State Machine -->
+    <!-- Predefined simulator shortcuts helper -->
+    <div class="simulator-shortcuts">
+        <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('STOP')">STOP (Opt-out)</button>
+        <button class="shortcut-btn" style="background-color: #e2e8f0;" onclick="shortcutSend('AYUDA')">AYUDA (Handoff)</button>
+        <button class="shortcut-btn" style="background-color: #d1fae5; color: #065f46;" onclick="shortcutSend('PREFERENCIAS')">PREFERENCIAS</button>
+        <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('MENÚ')">MENÚ</button>
+        <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('ATRÁS')">ATRÁS</button>
+        <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('CANCELAR')">CANCELAR</button>
+        <button class="shortcut-btn" style="background-color: #fef3c7; color: #92400e;" onclick="shortcutSend('REPROGRAMAR')">REPROGRAMAR</button>
+        <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
+    </div>
+
+    <!-- Script Block containing Bot Engine State Machine and Sync -->
     <script>
         // State Machine constants
         const STATES = {
@@ -850,7 +360,7 @@
         // Temporary session storage
         let session = {
             state: STATES.START,
-            history: [], // State history stack for ATRÁS (RF-016)
+            history: [],
             phone: '0998765432',
             name: '',
             cedula: '',
@@ -861,9 +371,9 @@
             date: '',
             hour: '',
             isNew: true,
-            isManual: false, // Handoff control
+            isManual: false,
             optOut: false,
-            prefPromotions: true, // Communication preferences (RF-021)
+            prefPromotions: true,
             prefReminders: true
         };
 
@@ -877,9 +387,62 @@
         };
 
         window.onload = function() {
+            // Clean localStorage on load to reset simulation
+            localStorage.clear();
+            
+            // Sync initial state
+            updateLocalStorage();
+
             botReply("🏥 ¡Bienvenido al Centro Médico Renacer! Envía un mensaje o presiona uno de los botones para iniciar.", 
                      ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
         };
+
+        // Listen for storage events from the Receptionist Dashboard tab
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'dashboard_action') {
+                const action = JSON.parse(e.newValue);
+                if (!action) return;
+
+                if (action.type === 'HANDOFF_MANUAL') {
+                    setHandoffMode(true);
+                } else if (action.type === 'HANDOFF_BOT') {
+                    setHandoffMode(false);
+                } else if (action.type === 'HSM_24H') {
+                    triggerHSMRecordatory("⏰ [Recordatorio Automático - 24 horas antes]:\nHola María, te recordamos que tienes una cita agendada para mañana a las 08:30 en la sucursal Guamaní con la Dra. Lizeth Molina.\nResponde MENÚ si tienes dudas.", ["MENÚ", "REPROGRAMAR"]);
+                } else if (action.type === 'HSM_4H') {
+                    triggerHSMRecordatory("⚠️ [Recordatorio Urgente - 4 horas antes]:\nHola María, tu cita médica inicia en 4 horas. Por favor confirma tu asistencia respondiendo SÍ o NO a este mensaje.", ["SÍ", "NO"]);
+                } else if (action.type === 'AGENT_REPLY') {
+                    // Message written by agent in dashboard
+                    addMessage(action.message, true, true);
+                }
+            }
+        });
+
+        function setHandoffMode(isManual) {
+            session.isManual = isManual;
+            updateLocalStorage();
+
+            if (isManual) {
+                document.getElementById("botStatusText").textContent = "En línea | Control de Agente Humano";
+                botReply("💬 Recepcionista humana ha tomado control del chat. Hola María, ¿en qué te puedo ayudar?");
+            } else {
+                document.getElementById("botStatusText").textContent = "En línea | Agente automático";
+                botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.", ["MENÚ"]);
+                session.state = STATES.START;
+            }
+        }
+
+        function triggerHSMRecordatory(message, buttons) {
+            if (session.optOut || !session.prefReminders) {
+                console.log("Recordatorio HSM bloqueado por preferencias.");
+                return;
+            }
+            botReply(message, buttons);
+        }
+
+        function updateLocalStorage() {
+            localStorage.setItem('session_state', JSON.stringify(session));
+        }
 
         function addMessage(text, isIncoming, isAgent = false, buttons = []) {
             const container = document.getElementById("chatMessageStream");
@@ -897,7 +460,6 @@
             
             let htmlContent = `${text.replace(/\n/g, '<br>')}`;
 
-            // If incoming message has interactive quick-reply buttons (RF-019)
             if (isIncoming && buttons && buttons.length > 0) {
                 htmlContent += `<div class="chat-btn-container">`;
                 buttons.forEach(btnText => {
@@ -910,11 +472,9 @@
             bubble.innerHTML = htmlContent;
             container.appendChild(bubble);
             
-            // Scroll to bottom
             container.scrollTop = container.scrollHeight;
 
             if (isIncoming && buttons && buttons.length > 0) {
-                // Disable previous messages buttons to show they are consumed
                 const oldBtns = container.querySelectorAll(".chat-interactive-btn");
                 oldBtns.forEach(btn => {
                     if (btn.parentNode !== bubble.querySelector(".chat-btn-container")) {
@@ -923,21 +483,22 @@
                 });
             }
 
-            // Update last message in dashboard queue
-            if (isIncoming) {
-                document.getElementById("queueItemLastMsg").textContent = `Último: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`;
-            }
+            // Sync with localStorage for Dashboard view
+            localStorage.setItem('last_message', JSON.stringify({
+                text: text,
+                isIncoming: isIncoming,
+                isAgent: isAgent,
+                timestamp: timeString
+            }));
         }
 
         function handleChatButtonClick(buttonElement, buttonText) {
-            // Mark button as clicked
             buttonElement.classList.add("clicked");
             const siblingButtons = buttonElement.parentNode.querySelectorAll(".chat-interactive-btn");
             siblingButtons.forEach(btn => {
                 btn.classList.add("disabled");
             });
 
-            // Map user-friendly labels to engine inputs
             let engineInput = buttonText;
             if (buttonText === "Agendar Cita") engineInput = "1";
             if (buttonText === "Consultar Historial") engineInput = "2";
@@ -993,6 +554,11 @@
             addMessage(text, false, isManual);
 
             if (session.isManual) {
+                // Pushes the message to the dashboard
+                localStorage.setItem('patient_chat_msg', JSON.stringify({
+                    text: text,
+                    timestamp: new Date().toLocaleTimeString()
+                }));
                 return;
             }
 
@@ -1012,21 +578,18 @@
         function engineStep(input) {
             let query = input.toUpperCase().trim();
 
-            // Intercept Global Commands
             if (query === 'STOP') {
                 session.optOut = true;
                 session.state = STATES.START;
+                updateLocalStorage();
                 botReply("🚫 Has cancelado la suscripción de mensajería. No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.", ["VOLVER"]);
-                document.getElementById("qualityBadge").textContent = "AMARILLO";
-                document.getElementById("qualityBadge").style.color = "var(--warning)";
                 return;
             }
             
             if (query === 'VOLVER' && session.optOut) {
                 session.optOut = false;
+                updateLocalStorage();
                 botReply("✅ Suscripción reactivada. ¿En qué podemos ayudarte?", ["MENÚ"]);
-                document.getElementById("qualityBadge").textContent = "VERDE";
-                document.getElementById("qualityBadge").style.color = "var(--success)";
                 return;
             }
 
@@ -1056,6 +619,7 @@
             if (query === 'MENÚ' || query === 'MENU') {
                 session.state = STATES.START;
                 session.history = [];
+                updateLocalStorage();
                 botReply("🏠 Volviendo al Menú Principal. Selecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
                 return;
             }
@@ -1064,6 +628,7 @@
                 if (session.history.length > 0) {
                     const prevState = session.history.pop();
                     session.state = prevState;
+                    updateLocalStorage();
                     botReply("↩️ Volviendo al paso anterior...");
                     engineStep('ATRAS_TRIGGER');
                 } else {
@@ -1087,14 +652,15 @@
             // State Machine Logic
             switch (session.state) {
                 case STATES.START:
-                    // Process Preferences selection if coming from Preferences state
                     if (query === '1') {
                         session.prefReminders = !session.prefReminders;
                         botReply(`⚙️ Preferencia Actualizada: Recordatorios ahora están ${session.prefReminders ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
+                        updateLocalStorage();
                         return;
                     } else if (query === '2') {
                         session.prefPromotions = !session.prefPromotions;
                         botReply(`⚙️ Preferencia Actualizada: Promociones ahora están ${session.prefPromotions ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
+                        updateLocalStorage();
                         return;
                     }
                     botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
@@ -1225,7 +791,12 @@
                         botReply("💾 Guardando cita en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago:\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en recepción.", ["MENÚ"]);
                         session.state = STATES.START;
                         
-                        logHSMSent(session.phone, "instrucciones_pago_copago");
+                        // Push log to HSM table on Dashboard
+                        localStorage.setItem('hsm_sent_trigger', JSON.stringify({
+                            phone: session.phone,
+                            template: "instrucciones_pago_copago",
+                            timestamp: new Date().toLocaleTimeString()
+                        }));
                     } else {
                         botReply("Entendido. Volvamos a la selección de sucursal.", ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"]);
                         session.state = STATES.SELECT_SPECIALTY;
@@ -1242,94 +813,18 @@
                     session.state = STATES.SELECT_HOUR;
                     break;
             }
+            updateLocalStorage();
         }
 
-        // =========================================
-        // AGENT HANDOFF CONTROLLER
-        // =========================================
         function triggerHandoffAlert() {
             botReply("⚠️ Transfiriendo chat a una Recepcionista Humana. El Bot automático ha sido pausado. En unos momentos serás atendido.");
             
-            const toast = document.getElementById("toastNotification");
-            toast.style.display = "block";
-            
-            const badge = document.getElementById("queueItemBadge");
-            badge.textContent = "ESPERA";
-            badge.className = "badge badge-waiting";
-
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 5000);
-        }
-
-        function toggleHandoffManual() {
-            session.isManual = true;
-            document.getElementById("botStatusText").textContent = "En línea | Control de Agente Humano";
-            document.getElementById("agentControlState").textContent = "CONTROL MANUAL (BOT INACTIVO)";
-            document.getElementById("agentControlState").style.color = "var(--danger)";
-            
-            document.getElementById("assumeControlBtn").style.display = "none";
-            document.getElementById("releaseControlBtn").style.display = "inline-flex";
-
-            const badge = document.getElementById("queueItemBadge");
-            badge.textContent = "Manual";
-            badge.className = "badge badge-agent";
-            
-            botReply("💬 Recepcionista humana ha tomado control del chat. Hola María, ¿en qué te puedo ayudar?");
-        }
-
-        function releaseHandoffManual() {
-            session.isManual = false;
-            document.getElementById("botStatusText").textContent = "En línea | Agente automático";
-            document.getElementById("agentControlState").textContent = "BOT AUTOMÁTICO";
-            document.getElementById("agentControlState").style.color = "var(--primary-dark)";
-            
-            document.getElementById("assumeControlBtn").style.display = "inline-flex";
-            document.getElementById("releaseControlBtn").style.display = "none";
-
-            const badge = document.getElementById("queueItemBadge");
-            badge.textContent = "En Bot";
-            badge.className = "badge badge-bot";
-
-            botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.", ["MENÚ"]);
-            session.state = STATES.START;
-        }
-
-        // Simulated HSM Recordatory triggers (RF-017 & RF-018)
-        function simulateHSM24h() {
-            if (session.optOut || !session.prefReminders) {
-                alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
-                return;
-            }
-            botReply("⏰ [Recordatorio Automático - 24 horas antes]:\nHola María, te recordamos que tienes una cita agendada para mañana a las 08:30 en la sucursal Guamaní con la Dra. Lizeth Molina.\nResponde MENÚ si tienes dudas.", ["MENÚ", "REPROGRAMAR"]);
-            logHSMSent(session.phone, "recordatorio_preventivo_24h");
-        }
-
-        function simulateHSM4h() {
-            if (session.optOut || !session.prefReminders) {
-                alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
-                return;
-            }
-            botReply("⚠️ [Recordatorio Urgente - 4 horas antes]:\nHola María, tu cita médica inicia en 4 horas. Por favor confirma tu asistencia respondiendo SÍ o NO a este mensaje.", ["SÍ", "NO"]);
-            logHSMSent(session.phone, "recordatorio_urgente_4h");
-        }
-
-        function logHSMSent(dest, template) {
-            const table = document.getElementById("hsmLogsTable");
-            const tr = document.createElement("tr");
-            const now = new Date();
-            const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            
-            tr.innerHTML = `
-                <td>${timeStr}</td>
-                <td>${dest}</td>
-                <td>${template}</td>
-                <td>$0.015</td>
-                <td><span class="badge" style="background-color: #dbeafe; color: #1e40af;">sent</span></td>
-            `;
-            table.insertBefore(tr, table.firstChild);
+            // Push alert to dashboard
+            localStorage.setItem('handoff_request_alert', JSON.stringify({
+                phone: session.phone,
+                timestamp: new Date().toLocaleTimeString()
+            }));
         }
     </script>
-
 </body>
 </html>
