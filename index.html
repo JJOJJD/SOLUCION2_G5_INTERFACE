@@ -354,7 +354,8 @@
             CONFIRM_SUMMARY: 'CONFIRM_SUMMARY',
             PAYMENT_INSTRUCTIONS: 'PAYMENT_INSTRUCTIONS',
             CANCELING: 'CANCELING',
-            REPROGRAMMING: 'REPROGRAMMING'
+            REPROGRAMMING: 'REPROGRAMMING',
+            PREFERENCIAS: 'PREFERENCIAS'
         };
 
         // Temporary session storage
@@ -638,6 +639,8 @@
             }
 
             if (query === 'PREFERENCIAS') {
+                session.state = STATES.PREFERENCIAS;
+                updateLocalStorage();
                 botReply(`⚙️ Configuración de Preferencias (RF-021):\n1. Alternar Recordatorios (Activos: ${session.prefReminders ? 'SÍ' : 'NO'})\n2. Alternar Promociones (Activos: ${session.prefPromotions ? 'SÍ' : 'NO'})`, ["Alternar Recordatorios", "Alternar Promociones", "MENÚ"]);
                 return;
             }
