@@ -38,6 +38,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         header {
@@ -49,6 +50,7 @@
             align-items: center;
             height: 64px;
             box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
         }
 
         .logo-container {
@@ -458,6 +460,7 @@
             outline: none;
             transition: all 0.2s;
             text-decoration: none;
+            width: auto;
         }
 
         .btn-primary {
@@ -488,6 +491,7 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -495,6 +499,7 @@
             border-collapse: collapse;
             font-size: 11px;
             text-align: left;
+            min-width: 500px;
         }
 
         th {
@@ -530,6 +535,57 @@
         @keyframes slideLeft {
             from { transform: translateX(50px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Mobile Breakpoint max-width 768px */
+        @media (max-width: 768px) {
+            body {
+                height: auto;
+                overflow-y: auto;
+            }
+
+            header {
+                flex-direction: column;
+                height: auto;
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .logo-container {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .workspace {
+                flex-direction: column;
+                height: auto;
+                overflow: visible;
+            }
+
+            .simulator-pane {
+                flex: none;
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 16px 12px;
+                height: auto;
+            }
+
+            .phone-mockup {
+                max-width: 100%;
+                height: 560px;
+            }
+
+            .dashboard-pane {
+                flex: none;
+                width: 100%;
+                padding: 16px 12px;
+                height: auto;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
 
     </style>
@@ -842,7 +898,7 @@
                 return;
             }
 
-            // Simulating Latency - replies in 300ms
+            // Simulating Latency (RNF-01) - replies in 300ms
             setTimeout(() => {
                 engineStep(text);
             }, 300);
@@ -862,7 +918,7 @@
             if (query === 'STOP') {
                 session.optOut = true;
                 session.state = STATES.START;
-                botReply("🚫 Has cancelado la suscripción de mensajería (Opt-out). No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
+                botReply("🚫 Has cancelado la suscripción de mensajería. No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
                 document.getElementById("qualityBadge").textContent = "AMARILLO";
                 document.getElementById("qualityBadge").style.color = "var(--warning)";
                 return;
