@@ -187,8 +187,8 @@
 
         /* Chat bubbles */
         .msg {
-            max-width: 80%;
-            padding: 8px 12px;
+            max-width: 85%;
+            padding: 10px 14px;
             border-radius: 8px;
             font-size: 12px;
             line-height: 1.4;
@@ -228,6 +228,44 @@
             display: block;
         }
 
+        /* Chat Interactive Button Styling (RF-019) */
+        .chat-btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 8px;
+        }
+
+        .chat-interactive-btn {
+            background-color: #f8fafc;
+            color: var(--whatsapp-green);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-interactive-btn:hover {
+            background-color: var(--whatsapp-green);
+            color: white;
+            border-color: var(--whatsapp-green);
+        }
+
+        .chat-interactive-btn.clicked {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            border-color: #cbd5e1;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .chat-input-bar {
             background-color: #f0f0f0;
             padding: 8px;
@@ -260,7 +298,7 @@
             font-weight: bold;
         }
 
-        /* Predefined simulator shortcuts helper */
+        /* Predefined simulator debugging shortcuts helper */
         .simulator-shortcuts {
             margin-top: 16px;
             display: flex;
@@ -481,12 +519,6 @@
             background-color: #dc2626;
         }
 
-        .btn-disabled {
-            background-color: #cbd5e1;
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-
         /* HSM logs table */
         .table-responsive {
             width: 100%;
@@ -643,25 +675,16 @@
                 </div>
             </div>
 
-            <!-- Predefined simulator click options -->
+            <!-- Predefined simulator click options (Debugging Shortcuts only) -->
             <div class="simulator-shortcuts">
-                <button class="shortcut-btn" onclick="shortcutSend('Hola')">Hola (Iniciar)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Agendar)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1723456789')">Cédula (Válida)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Guamaní)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Ginecología)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Dra. Molina)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (Hoy)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('1')">1 (08:30)</button>
-                <button class="shortcut-btn" onclick="shortcutSend('Sí')">Sí (Confirmar)</button>
-                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('CANCELAR')">CANCELAR</button>
-                <button class="shortcut-btn" style="background-color: #fef3c7; color: #92400e;" onclick="shortcutSend('REPROGRAMAR')">REPROGRAMAR</button>
-                <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
                 <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('STOP')">STOP (Opt-out)</button>
                 <button class="shortcut-btn" style="background-color: #e2e8f0;" onclick="shortcutSend('AYUDA')">AYUDA (Handoff)</button>
                 <button class="shortcut-btn" style="background-color: #d1fae5; color: #065f46;" onclick="shortcutSend('PREFERENCIAS')">PREFERENCIAS</button>
                 <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('MENÚ')">MENÚ</button>
                 <button class="shortcut-btn" style="background-color: #f3f4f6;" onclick="shortcutSend('ATRÁS')">ATRÁS</button>
+                <button class="shortcut-btn" style="background-color: #fee2e2; color: #991b1b;" onclick="shortcutSend('CANCELAR')">CANCELAR</button>
+                <button class="shortcut-btn" style="background-color: #fef3c7; color: #92400e;" onclick="shortcutSend('REPROGRAMAR')">REPROGRAMAR</button>
+                <button class="shortcut-btn" style="background-color: #dbeafe; color: #1e40af;" onclick="shortcutSend('HISTORIAL')">HISTORIAL</button>
             </div>
         </div>
 
@@ -749,7 +772,7 @@
                                 DEVOLVER AL BOT
                             </button>
                         </div>
-                        
+
                         <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 4px;">
                             <span class="card-title" style="font-size: 11px; display: block; margin-bottom: 8px;">Simular Alertas HSM de Citas:</span>
                             <div style="display: flex; gap: 6px;">
@@ -854,10 +877,11 @@
         };
 
         window.onload = function() {
-            botReply("¡Bienvenido a AgendaMed Renacer! Envía cualquier mensaje para iniciar el menú principal de agendamiento conversacional.");
+            botReply("🏥 ¡Bienvenido al Centro Médico Renacer! Envía un mensaje o presiona uno de los botones para iniciar.", 
+                     ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
         };
 
-        function addMessage(text, isIncoming, isAgent = false) {
+        function addMessage(text, isIncoming, isAgent = false, buttons = []) {
             const container = document.getElementById("chatMessageStream");
             const bubble = document.createElement("div");
             
@@ -871,20 +895,82 @@
             const now = new Date();
             const timeString = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
             
-            bubble.innerHTML = `${text.replace(/\n/g, '<br>')}<span class="msg-time">${timeString}</span>`;
+            let htmlContent = `${text.replace(/\n/g, '<br>')}`;
+
+            // If incoming message has interactive quick-reply buttons (RF-019)
+            if (isIncoming && buttons && buttons.length > 0) {
+                htmlContent += `<div class="chat-btn-container">`;
+                buttons.forEach(btnText => {
+                    htmlContent += `<button class="chat-interactive-btn" onclick="handleChatButtonClick(this, '${btnText}')">${btnText}</button>`;
+                });
+                htmlContent += `</div>`;
+            }
+
+            htmlContent += `<span class="msg-time">${timeString}</span>`;
+            bubble.innerHTML = htmlContent;
             container.appendChild(bubble);
             
             // Scroll to bottom
             container.scrollTop = container.scrollHeight;
 
+            if (isIncoming && buttons && buttons.length > 0) {
+                // Disable previous messages buttons to show they are consumed
+                const oldBtns = container.querySelectorAll(".chat-interactive-btn");
+                oldBtns.forEach(btn => {
+                    if (btn.parentNode !== bubble.querySelector(".chat-btn-container")) {
+                        btn.classList.add("disabled");
+                    }
+                });
+            }
+
             // Update last message in dashboard queue
             if (isIncoming) {
-                document.getElementById("queueItemLastMsg").textContent = `Último: ${text}`;
+                document.getElementById("queueItemLastMsg").textContent = `Último: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`;
             }
         }
 
-        function handleInputKeyPress(e) {
-            if (e.key === 'Enter') {
+        function handleChatButtonClick(buttonElement, buttonText) {
+            // Mark button as clicked
+            buttonElement.classList.add("clicked");
+            const siblingButtons = buttonElement.parentNode.querySelectorAll(".chat-interactive-btn");
+            siblingButtons.forEach(btn => {
+                btn.classList.add("disabled");
+            });
+
+            // Map user-friendly labels to engine inputs
+            let engineInput = buttonText;
+            if (buttonText === "Agendar Cita") engineInput = "1";
+            if (buttonText === "Consultar Historial") engineInput = "2";
+            if (buttonText === "Cancelar Cita") engineInput = "3";
+            if (buttonText === "Solicitar Asistencia") engineInput = "AYUDA";
+            
+            if (buttonText === "Guamaní (Matriz Sur)") engineInput = "1";
+            if (buttonText === "La Arcadia") engineInput = "2";
+            if (buttonText === "Sangolquí") engineInput = "3";
+
+            if (buttonText === "Ginecología") engineInput = "1";
+            if (buttonText === "Obstetricia") engineInput = "2";
+            if (buttonText === "Medicina General") engineInput = "3";
+
+            if (buttonText === "Dra. Lizeth Molina" || buttonText === "Dr. Santiago Rueda") engineInput = "1";
+            if (buttonText === "Dr. Marcelo Dávila") engineInput = "2";
+
+            if (buttonText === "Hoy (2026-07-14)") engineInput = "1";
+            if (buttonText === "Mañana (2026-07-15)") engineInput = "2";
+            if (buttonText === "Próximo lunes (2026-07-20)") engineInput = "3";
+
+            if (buttonText === "08:30") engineInput = "1";
+            if (buttonText === "09:30") engineInput = "2";
+            if (buttonText === "11:30") engineInput = "3";
+
+            if (buttonText === "Alternar Recordatorios") engineInput = "1";
+            if (buttonText === "Alternar Promociones") engineInput = "2";
+
+            processUserMessage(engineInput);
+        }
+
+        function handleInputKeyPress(event) {
+            if (event.key === 'Enter') {
                 sendCustomMessage();
             }
         }
@@ -903,16 +989,10 @@
         }
 
         function processUserMessage(text) {
-            // Add user message to UI
             const isManual = session.isManual;
             addMessage(text, false, isManual);
 
-            // If manual handoff control is active, bot replies are suspended
             if (session.isManual) {
-                // Mock receiver agent logs
-                setTimeout(() => {
-                    // Just simulated reception
-                }, 300);
                 return;
             }
 
@@ -922,21 +1002,21 @@
             }, 300);
         }
 
-        function botReply(text) {
-            addMessage(text, true);
+        function botReply(text, buttons = []) {
+            addMessage(text, true, false, buttons);
         }
 
         // =========================================
         // CONVERSATIONAL ENGINE STATE MACHINE
         // =========================================
         function engineStep(input) {
-            const query = input.toUpperCase().trim();
+            let query = input.toUpperCase().trim();
 
             // Intercept Global Commands
             if (query === 'STOP') {
                 session.optOut = true;
                 session.state = STATES.START;
-                botReply("🚫 Has cancelado la suscripción de mensajería. No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
+                botReply("🚫 Has cancelado la suscripción de mensajería. No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.", ["VOLVER"]);
                 document.getElementById("qualityBadge").textContent = "AMARILLO";
                 document.getElementById("qualityBadge").style.color = "var(--warning)";
                 return;
@@ -944,7 +1024,7 @@
             
             if (query === 'VOLVER' && session.optOut) {
                 session.optOut = false;
-                botReply("✅ Suscripción reactivada. ¿En qué podemos ayudarte?");
+                botReply("✅ Suscripción reactivada. ¿En qué podemos ayudarte?", ["MENÚ"]);
                 document.getElementById("qualityBadge").textContent = "VERDE";
                 document.getElementById("qualityBadge").style.color = "var(--success)";
                 return;
@@ -957,18 +1037,18 @@
 
             if (query === 'CANCELAR') {
                 session.state = STATES.CANCELING;
-                botReply("❌ Solicitud de Cancelación de Cita:\nEscribe el CÓDIGO de la cita que deseas cancelar:");
+                botReply("❌ Solicitud de Cancelación de Cita:\nEscribe el CÓDIGO de la cita que deseas cancelar:", ["app-1", "app-2"]);
                 return;
             }
 
             if (query === 'REPROGRAMAR') {
                 session.state = STATES.REPROGRAMMING;
-                botReply("🔄 Solicitud de Reprogramación de Cita:\nEscribe el CÓDIGO de la cita que deseas reprogramar:");
+                botReply("🔄 Solicitud de Reprogramación de Cita:\nEscribe el CÓDIGO de la cita que deseas reprogramar:", ["app-1", "app-2"]);
                 return;
             }
 
             if (query === 'HISTORIAL') {
-                botReply("📋 Historial de Citas:\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)");
+                botReply("📋 Historial de Citas:\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)", ["MENÚ", "REPROGRAMAR"]);
                 return;
             }
 
@@ -976,10 +1056,7 @@
             if (query === 'MENÚ' || query === 'MENU') {
                 session.state = STATES.START;
                 session.history = [];
-                botReply("🏠 Volviendo al Menú Principal. Selecciona una opción:
-1. Agendar Cita
-2. Consultar Citas / Historial
-3. Cancelar Cita");
+                botReply("🏠 Volviendo al Menú Principal. Selecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
                 return;
             }
 
@@ -990,13 +1067,13 @@
                     botReply("↩️ Volviendo al paso anterior...");
                     engineStep('ATRAS_TRIGGER');
                 } else {
-                    botReply("No hay pasos anteriores. Escribe MENÚ para volver al inicio.");
+                    botReply("No hay pasos anteriores. Escribe MENÚ para volver al inicio.", ["MENÚ"]);
                 }
                 return;
             }
 
             if (query === 'PREFERENCIAS') {
-                botReply(`⚙️ Configuración de Preferencias (RF-021):\n1. Alternar Recordatorios (Activos: ${session.prefReminders ? 'SÍ' : 'NO'})\n2. Alternar Promociones (Activos: ${session.prefPromotions ? 'SÍ' : 'NO'})\nResponde 1 o 2 para cambiar, o MENÚ para volver.`);
+                botReply(`⚙️ Configuración de Preferencias (RF-021):\n1. Alternar Recordatorios (Activos: ${session.prefReminders ? 'SÍ' : 'NO'})\n2. Alternar Promociones (Activos: ${session.prefPromotions ? 'SÍ' : 'NO'})`, ["Alternar Recordatorios", "Alternar Promociones", "MENÚ"]);
                 return;
             }
 
@@ -1004,7 +1081,6 @@
             if (query !== 'ATRAS_TRIGGER') {
                 session.history.push(session.state);
             } else {
-                // Re-evaluate message for the reverted state
                 query = ""; 
             }
 
@@ -1014,142 +1090,155 @@
                     // Process Preferences selection if coming from Preferences state
                     if (query === '1') {
                         session.prefReminders = !session.prefReminders;
-                        botReply(`⚙️ Preferencia Actualizada: Recordatorios ahora están ${session.prefReminders ? 'HABILITADOS' : 'DESHABILITADOS'}. Escribe MENÚ para continuar.`);
+                        botReply(`⚙️ Preferencia Actualizada: Recordatorios ahora están ${session.prefReminders ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
                         return;
                     } else if (query === '2') {
                         session.prefPromotions = !session.prefPromotions;
-                        botReply(`⚙️ Preferencia Actualizada: Promociones ahora están ${session.prefPromotions ? 'HABILITADOS' : 'DESHABILITADOS'}. Escribe MENÚ para continuar.`);
+                        botReply(`⚙️ Preferencia Actualizada: Promociones ahora están ${session.prefPromotions ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
                         return;
                     }
-                    botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:\n1. Agendar Cita\n2. Consultar Citas / Historial\n3. Cancelar Cita\n4. Solicitar Recepcionista Humano");
+                    botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
                     session.state = STATES.REGISTRATION_CEDULA;
                     break;
 
                 case STATES.REGISTRATION_CEDULA:
                     if (query === '1') {
-                        botReply("Para iniciar el proceso de reserva, necesitamos identificarte.\nPor favor, ingresa tu número de cédula (10 dígitos) o pasaporte:");
+                        botReply("Para iniciar el proceso de reserva, necesitamos identificarte.\nPor favor, ingresa tu número de cédula (10 dígitos) o pasaporte:", ["1723456789"]);
                         session.state = STATES.REGISTRATION_NAME;
                     } else if (query === '2') {
-                        engineStep('HISTORIAL');
+                        botReply("📋 Historial de Citas:\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)", ["MENÚ"]);
                         session.state = STATES.START;
                     } else if (query === '3') {
                         engineStep('CANCELAR');
                     } else {
-                        botReply("Opción no válida. Escribe 1 para iniciar la reserva de tu cita.");
+                        botReply("Opción no válida. Por favor, selecciona una opción:", ["Agendar Cita", "Consultar Historial"]);
                     }
                     break;
 
                 case STATES.REGISTRATION_NAME:
-                    // Validate cedula modulo 10
                     if (input.length === 10) {
                         session.cedula = input;
-                        botReply("Cédula válida detectada. Por favor, ingresa tus nombres y apellidos completos:");
+                        botReply("Cédula válida detectada. Por favor, ingresa tus nombres y apellidos completos:", ["María Alejandra Pérez"]);
                         session.state = STATES.REGISTRATION_LGPD;
                     } else {
-                        botReply("⚠️ Cédula inválida. Debe tener 10 dígitos. Inténtalo de nuevo:");
+                        botReply("⚠️ Cédula inválida. Debe tener 10 dígitos. Inténtalo de nuevo:", ["1723456789"]);
                     }
                     break;
 
                 case STATES.REGISTRATION_LGPD:
                     session.name = input;
-                    botReply(`Consentimiento de Datos Personales:\n¿Aceptas que la clínica guarde tus datos médicos de acuerdo con la Ley Orgánica de Protección de Datos?\nResponde: SÍ o NO`);
+                    botReply(`Consentimiento de Datos Personales:\n¿Aceptas que la clínica guarde tus datos médicos de acuerdo con la LOPDP / LGPD?`, ["SÍ", "NO"]);
                     session.state = STATES.SELECT_SUCURSAL;
                     break;
 
                 case STATES.SELECT_SUCURSAL:
                     if (query === 'SÍ' || query === 'SI') {
                         session.consent = true;
-                        botReply("¡Perfecto! Selecciona la sucursal de preferencia:\n1. Guamaní (Matriz Sur)\n2. La Arcadia\n3. Sangolquí");
+                        botReply("¡Perfecto! Selecciona la sucursal de preferencia:", ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"]);
                         session.state = STATES.SELECT_SPECIALTY;
                     } else {
-                        botReply("Lo sentimos, de acuerdo con la LOPDP / LGPD, es obligatorio aceptar el consentimiento para procesar tu agendamiento. Escribe SÍ para aceptar:");
+                        botReply("Lo sentimos, es obligatorio aceptar el consentimiento para procesar tu agendamiento.", ["SÍ", "NO"]);
                     }
                     break;
 
                 case STATES.SELECT_SPECIALTY:
-                    const sucIdx = parseInt(input) - 1;
-                    if (sucIdx >= 0 && sucIdx < sucursales.length) {
-                        session.sucursal = sucursalName = sucursales[sucIdx];
-                        botReply(`Sucursal seleccionada: ${session.sucursal}.\nSelecciona la especialidad de consulta:\n1. Ginecología\n2. Obstetricia\n3. Medicina General`);
+                    const mockSucs = ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"];
+                    let selectedSuc = "";
+                    if (query === '1' || query === 'GUAMANÍ (MATRIZ SUR)') selectedSuc = mockSucs[0];
+                    if (query === '2' || query === 'LA ARCADIA') selectedSuc = mockSucs[1];
+                    if (query === '3' || query === 'SANGOLQUÍ') selectedSuc = mockSucs[2];
+
+                    if (selectedSuc) {
+                        session.sucursal = selectedSuc;
+                        botReply(`Sucursal seleccionada: ${session.sucursal}.\nSelecciona la especialidad de consulta:`, ["Ginecología", "Obstetricia", "Medicina General"]);
                         session.state = STATES.SELECT_DOCTOR;
                     } else {
-                        botReply("Opción incorrecta. Responde con el número de sucursal (1, 2 o 3):");
+                        botReply("Opción incorrecta. Selecciona una sucursal:", ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"]);
                     }
                     break;
 
                 case STATES.SELECT_DOCTOR:
-                    const specIdx = parseInt(input) - 1;
-                    if (specIdx >= 0 && specIdx < specialties.length) {
-                        session.specialty = specialties[specIdx];
+                    const mockSpecs = ["Ginecología", "Obstetricia", "Medicina General"];
+                    let selectedSpec = "";
+                    if (query === '1' || query === 'GINECOLOGÍA') selectedSpec = mockSpecs[0];
+                    if (query === '2' || query === 'OBSTETRICIA') selectedSpec = mockSpecs[1];
+                    if (query === '3' || query === 'MEDICINA GENERAL') selectedSpec = mockSpecs[2];
+
+                    if (selectedSpec) {
+                        session.specialty = selectedSpec;
                         const docs = doctors[session.specialty];
-                        let reply = `Especialidad: ${session.specialty}.\nSelecciona tu médico especialista:\n`;
-                        docs.forEach((d, idx) => {
-                            reply += `${idx + 1}. ${d}\n`;
-                        });
-                        botReply(reply);
+                        botReply(`Especialidad: ${session.specialty}.\nSelecciona tu médico especialista:`, docs);
                         session.state = STATES.SELECT_DATE;
                     } else {
-                        botReply("Opción incorrecta. Responde con el número de especialidad (1, 2 o 3):");
+                        botReply("Opción incorrecta. Selecciona la especialidad de consulta:", ["Ginecología", "Obstetricia", "Medicina General"]);
                     }
                     break;
 
                 case STATES.SELECT_DATE:
-                    const docIdx = parseInt(input) - 1;
                     const docsList = doctors[session.specialty];
-                    if (docIdx >= 0 && docIdx < docsList.length) {
-                        session.doctor = docsList[docIdx];
-                        botReply(`Médico: ${session.doctor}.\nSelecciona una fecha disponible:\n1. Hoy (2026-07-14)\n2. Mañana (2026-07-15)\n3. Próximo lunes (2026-07-20)`);
+                    let selectedDoc = "";
+                    if (query === '1' || docsList.includes(input)) selectedDoc = docsList[0];
+                    if (query === '2' && docsList.length > 1) selectedDoc = docsList[1];
+
+                    if (selectedDoc) {
+                        session.doctor = selectedDoc;
+                        botReply(`Médico: ${session.doctor}.\nSelecciona una fecha disponible:`, ["Hoy (2026-07-14)", "Mañana (2026-07-15)", "Próximo lunes (2026-07-20)"]);
                         session.state = STATES.SELECT_HOUR;
                     } else {
-                        botReply("Opción incorrecta. Selecciona el número del médico en la lista:");
+                        botReply("Opción incorrecta. Selecciona tu médico especialista:", docsList);
                     }
                     break;
 
                 case STATES.SELECT_HOUR:
-                    if (query === '1' || query === '2' || query === '3') {
-                        session.date = query === '1' ? '2026-07-14' : (query === '2' ? '2026-07-15' : '2026-07-20');
-                        botReply(`Fecha: ${session.date}.\nSelecciona el bloque horario de tu preferencia:\n1. 08:30 - 09:00\n2. 09:30 - 10:00\n3. 11:30 - 12:00`);
+                    let selectedDate = "";
+                    if (query === '1' || query.includes("HOY")) selectedDate = '2026-07-14';
+                    if (query === '2' || query.includes("MAÑANA")) selectedDate = '2026-07-15';
+                    if (query === '3' || query.includes("LUNES")) selectedDate = '2026-07-20';
+
+                    if (selectedDate) {
+                        session.date = selectedDate;
+                        botReply(`Fecha: ${session.date}.\nSelecciona el bloque horario de tu preferencia:`, ["08:30", "09:30", "11:30"]);
                         session.state = STATES.CONFIRM_SUMMARY;
                     } else {
-                        botReply("Opción incorrecta. Selecciona una fecha (1, 2 o 3):");
+                        botReply("Opción incorrecta. Selecciona una fecha:", ["Hoy (2026-07-14)", "Mañana (2026-07-15)", "Próximo lunes (2026-07-20)"]);
                     }
                     break;
 
                 case STATES.CONFIRM_SUMMARY:
-                    if (query === '1' || query === '2' || query === '3') {
-                        session.hour = query === '1' ? '08:30' : (query === '2' ? '09:30' : '11:30');
-                        
-                        // Summary Summary
-                        const summary = `📝 Resumen Ejecutivo de Cita:\n• Paciente: ${session.name}\n• Sucursal: ${session.sucursal}\n• Especialidad: ${session.specialty}\n• Médico: ${session.doctor}\n• Fecha y Hora: ${session.date} ${session.hour}\n• Monto Copago: $25.00\n\n¿Los datos son correctos? Responde: SÍ o NO`;
-                        botReply(summary);
+                    let selectedHour = "";
+                    if (query === '1' || query === "08:30") selectedHour = '08:30';
+                    if (query === '2' || query === "09:30") selectedHour = '09:30';
+                    if (query === '3' || query === "11:30") selectedHour = '11:30';
+
+                    if (selectedHour) {
+                        session.hour = selectedHour;
+                        const summary = `📝 Resumen Ejecutivo de Cita:\n• Paciente: ${session.name}\n• Sucursal: ${session.sucursal}\n• Especialidad: ${session.specialty}\n• Médico: ${session.doctor}\n• Fecha y Hora: ${session.date} ${session.hour}\n• Monto Copago: $25.00\n\n¿Los datos son correctos?`;
+                        botReply(summary, ["SÍ", "NO"]);
                         session.state = STATES.PAYMENT_INSTRUCTIONS;
                     } else {
-                        botReply("Opción incorrecta. Selecciona un bloque horario (1, 2 o 3):");
+                        botReply("Opción incorrecta. Selecciona un bloque horario:", ["08:30", "09:30", "11:30"]);
                     }
                     break;
 
                 case STATES.PAYMENT_INSTRUCTIONS:
                     if (query === 'SÍ' || query === 'SI') {
-                        // Creación transaccional
-                        botReply("💾 Guardando cita de forma transaccional en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago:\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en efectivo en recepción el día de tu cita.\n\n¡Gracias! Tu cita ha sido pre-agendada.");
+                        botReply("💾 Guardando cita en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago:\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en recepción.", ["MENÚ"]);
                         session.state = STATES.START;
                         
-                        // Push log to HSM table on Dashboard
                         logHSMSent(session.phone, "instrucciones_pago_copago");
                     } else {
-                        botReply("Entendido. Volvamos a la selección de sucursal.");
-                        session.state = STATES.SELECT_SUCURSAL;
-                        engineStep('Sí'); // Force retrigger
+                        botReply("Entendido. Volvamos a la selección de sucursal.", ["Guamaní (Matriz Sur)", "La Arcadia", "Sangolquí"]);
+                        session.state = STATES.SELECT_SPECIALTY;
                     }
                     break;
 
                 case STATES.CANCELING:
-                    botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero bajo la política de devolución (100% reembolso por anticipación >4h).`);
+                    botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero (100% reembolso por anticipación >4h).`, ["MENÚ"]);
                     session.state = STATES.START;
                     break;
 
                 case STATES.REPROGRAMMING:
-                    botReply(`Cita ${input} seleccionada para reprogramación. Por favor, selecciona la nueva fecha:\n1. Mañana\n2. Próxima semana`);
+                    botReply(`Cita ${input} seleccionada para reprogramación. Por favor, selecciona la nueva fecha:`, ["Hoy (2026-07-14)", "Mañana (2026-07-15)"]);
                     session.state = STATES.SELECT_HOUR;
                     break;
             }
@@ -1161,11 +1250,9 @@
         function triggerHandoffAlert() {
             botReply("⚠️ Transfiriendo chat a una Recepcionista Humana. El Bot automático ha sido pausado. En unos momentos serás atendido.");
             
-            // Show alert toast
             const toast = document.getElementById("toastNotification");
             toast.style.display = "block";
             
-            // Highlight queue item on Dashboard
             const badge = document.getElementById("queueItemBadge");
             badge.textContent = "ESPERA";
             badge.className = "badge badge-waiting";
@@ -1204,7 +1291,7 @@
             badge.textContent = "En Bot";
             badge.className = "badge badge-bot";
 
-            botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.");
+            botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.", ["MENÚ"]);
             session.state = STATES.START;
         }
 
@@ -1214,7 +1301,7 @@
                 alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
                 return;
             }
-            botReply("⏰ [Recordatorio Automático - 24 horas antes]:\nHola María, te recordamos que tienes una cita agendada para mañana a las 08:30 en la sucursal Guamaní con la Dra. Lizeth Molina.\nResponde MENÚ si tienes dudas.");
+            botReply("⏰ [Recordatorio Automático - 24 horas antes]:\nHola María, te recordamos que tienes una cita agendada para mañana a las 08:30 en la sucursal Guamaní con la Dra. Lizeth Molina.\nResponde MENÚ si tienes dudas.", ["MENÚ", "REPROGRAMAR"]);
             logHSMSent(session.phone, "recordatorio_preventivo_24h");
         }
 
@@ -1223,7 +1310,7 @@
                 alert("No se pudo enviar: El paciente canceló recordatorios (Opt-out/Preferencias).");
                 return;
             }
-            botReply("⚠️ [Recordatorio Urgente - 4 horas antes]:\nHola María, tu cita médica inicia en 4 horas. Por favor confirma tu asistencia respondiendo SÍ o NO a este mensaje.");
+            botReply("⚠️ [Recordatorio Urgente - 4 horas antes]:\nHola María, tu cita médica inicia en 4 horas. Por favor confirma tu asistencia respondiendo SÍ o NO a este mensaje.", ["SÍ", "NO"]);
             logHSMSent(session.phone, "recordatorio_urgente_4h");
         }
 
@@ -1240,7 +1327,6 @@
                 <td>$0.015</td>
                 <td><span class="badge" style="background-color: #dbeafe; color: #1e40af;">sent</span></td>
             `;
-            // Insert at top of tbody
             table.insertBefore(tr, table.firstChild);
         }
     </script>
