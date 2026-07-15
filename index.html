@@ -551,7 +551,7 @@
             </div>
         </div>
         <div>
-            <span class="badge" style="background-color: #dcfce7; color: #166534;">Adaptador Activo (RNF-08)</span>
+            <span class="badge" style="background-color: #dcfce7; color: #166534;">Adaptador Activo</span>
         </div>
     </header>
 
@@ -609,7 +609,7 @@
         <!-- RIGHT SIDE: RECEPCIONISTA DASHBOARD -->
         <div class="dashboard-pane">
             <div>
-                <h2 class="dashboard-title">Panel de Control de Recepcionista (RF-023)</h2>
+                <h2 class="dashboard-title">Panel de Control de Recepcionista</h2>
                 <p style="font-size: 12px; color: var(--text-muted);">Seguimiento de colas en vivo, monitoreo de latencia y toma de control manual (Handoff).</p>
             </div>
 
@@ -617,15 +617,15 @@
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-val" id="qualityBadge" style="color: var(--success);">VERDE</div>
-                    <div class="metric-label">Quality Rating (RNF-03)</div>
+                    <div class="metric-label">Quality Rating</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-val">0.34s</div>
-                    <div class="metric-label">Latencia Webhook (RNF-01)</div>
+                    <div class="metric-label">Latencia Webhook</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-val">99.9%</div>
-                    <div class="metric-label">Uptime Webhook (RNF-04)</div>
+                    <div class="metric-label">Uptime Webhook</div>
                 </div>
             </div>
 
@@ -634,7 +634,7 @@
                 <!-- Chat queue column -->
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Chats Pendientes (RF-023)</span>
+                        <span class="card-title">Chats Pendientes</span>
                     </div>
                     <div class="chat-queue-list">
                         <div class="queue-item active" id="queueItemPatient">
@@ -664,7 +664,7 @@
                 <!-- Agent active manual control box -->
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Handoff: Toma de Control (RF-024)</span>
+                        <span class="card-title">Handoff: Toma de Control</span>
                     </div>
                     <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; gap: 16px;">
                         <p style="font-size: 12px; color: var(--text-muted);">
@@ -684,7 +684,7 @@
 
                         <div style="display: flex; gap: 8px;">
                             <button class="btn btn-primary" style="flex: 1;" id="assumeControlBtn" onclick="toggleHandoffManual()">
-                                ASUMIR CONTROL MANUAL (RF-024)
+                                ASUMIR CONTROL MANUAL
                             </button>
                             <button class="btn btn-danger" style="display: none;" id="releaseControlBtn" onclick="releaseHandoffManual()">
                                 DEVOLVER AL BOT
@@ -697,7 +697,7 @@
             <!-- HSM logs list -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Historial de Envíos HSM Pre-Aprobados (RNF-12)</span>
+                    <span class="card-title">Historial de Envíos HSM Pre-Aprobados</span>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -707,7 +707,7 @@
                                 <th>Destinatario</th>
                                 <th>Plantilla HSM</th>
                                 <th>Costo</th>
-                                <th>Estado Entrega (RNF-02)</th>
+                                <th>Estado Entrega</th>
                             </tr>
                         </thead>
                         <tbody id="hsmLogsTable">
@@ -842,7 +842,7 @@
                 return;
             }
 
-            // Simulating Latency (RNF-01) - replies in 300ms
+            // Simulating Latency - replies in 300ms
             setTimeout(() => {
                 engineStep(text);
             }, 300);
@@ -862,7 +862,7 @@
             if (query === 'STOP') {
                 session.optOut = true;
                 session.state = STATES.START;
-                botReply("🚫 Has cancelado la suscripción de mensajería (Opt-out - RF-022). No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
+                botReply("🚫 Has cancelado la suscripción de mensajería (Opt-out). No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.");
                 document.getElementById("qualityBadge").textContent = "AMARILLO";
                 document.getElementById("qualityBadge").style.color = "var(--warning)";
                 return;
@@ -883,18 +883,18 @@
 
             if (query === 'CANCELAR') {
                 session.state = STATES.CANCELING;
-                botReply("❌ Solicitud de Cancelación de Cita (RF-011):\nEscribe el CÓDIGO de la cita que deseas cancelar:");
+                botReply("❌ Solicitud de Cancelación de Cita:\nEscribe el CÓDIGO de la cita que deseas cancelar:");
                 return;
             }
 
             if (query === 'REPROGRAMAR') {
                 session.state = STATES.REPROGRAMMING;
-                botReply("🔄 Solicitud de Reprogramación de Cita (RF-012):\nEscribe el CÓDIGO de la cita que deseas reprogramar:");
+                botReply("🔄 Solicitud de Reprogramación de Cita:\nEscribe el CÓDIGO de la cita que deseas reprogramar:");
                 return;
             }
 
             if (query === 'HISTORIAL') {
-                botReply("📋 Historial de Citas (RF-020):\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)");
+                botReply("📋 Historial de Citas:\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)");
                 return;
             }
 
@@ -932,14 +932,14 @@
 
                 case STATES.REGISTRATION_LGPD:
                     session.name = input;
-                    botReply(`Consentimiento de Datos Personales (RF-013):\n¿Aceptas que la clínica guarde tus datos médicos de acuerdo con la Ley Orgánica de Protección de Datos?\nResponde: SÍ o NO`);
+                    botReply(`Consentimiento de Datos Personales:\n¿Aceptas que la clínica guarde tus datos médicos de acuerdo con la Ley Orgánica de Protección de Datos?\nResponde: SÍ o NO`);
                     session.state = STATES.SELECT_SUCURSAL;
                     break;
 
                 case STATES.SELECT_SUCURSAL:
                     if (query === 'SÍ' || query === 'SI') {
                         session.consent = true;
-                        botReply("¡Perfecto! Selecciona la sucursal de preferencia (RF-003):\n1. Guamaní (Matriz Sur)\n2. La Arcadia\n3. Sangolquí");
+                        botReply("¡Perfecto! Selecciona la sucursal de preferencia:\n1. Guamaní (Matriz Sur)\n2. La Arcadia\n3. Sangolquí");
                         session.state = STATES.SELECT_SPECIALTY;
                     } else {
                         botReply("Lo sentimos, de acuerdo con la LOPDP / LGPD, es obligatorio aceptar el consentimiento para procesar tu agendamiento. Escribe SÍ para aceptar:");
@@ -950,7 +950,7 @@
                     const sucIdx = parseInt(input) - 1;
                     if (sucIdx >= 0 && sucIdx < sucursales.length) {
                         session.sucursal = sucursalName = sucursales[sucIdx];
-                        botReply(`Sucursal seleccionada: ${session.sucursal}.\nSelecciona la especialidad de consulta (RF-004):\n1. Ginecología\n2. Obstetricia\n3. Medicina General`);
+                        botReply(`Sucursal seleccionada: ${session.sucursal}.\nSelecciona la especialidad de consulta:\n1. Ginecología\n2. Obstetricia\n3. Medicina General`);
                         session.state = STATES.SELECT_DOCTOR;
                     } else {
                         botReply("Opción incorrecta. Responde con el número de sucursal (1, 2 o 3):");
@@ -962,7 +962,7 @@
                     if (specIdx >= 0 && specIdx < specialties.length) {
                         session.specialty = specialties[specIdx];
                         const docs = doctors[session.specialty];
-                        let reply = `Especialidad: ${session.specialty}.\nSelecciona tu médico especialista (RF-005):\n`;
+                        let reply = `Especialidad: ${session.specialty}.\nSelecciona tu médico especialista:\n`;
                         docs.forEach((d, idx) => {
                             reply += `${idx + 1}. ${d}\n`;
                         });
@@ -978,7 +978,7 @@
                     const docsList = doctors[session.specialty];
                     if (docIdx >= 0 && docIdx < docsList.length) {
                         session.doctor = docsList[docIdx];
-                        botReply(`Médico: ${session.doctor}.\nSelecciona una fecha disponible (RF-006):\n1. Hoy (2026-07-14)\n2. Mañana (2026-07-15)\n3. Próximo lunes (2026-07-20)`);
+                        botReply(`Médico: ${session.doctor}.\nSelecciona una fecha disponible:\n1. Hoy (2026-07-14)\n2. Mañana (2026-07-15)\n3. Próximo lunes (2026-07-20)`);
                         session.state = STATES.SELECT_HOUR;
                     } else {
                         botReply("Opción incorrecta. Selecciona el número del médico en la lista:");
@@ -988,7 +988,7 @@
                 case STATES.SELECT_HOUR:
                     if (query === '1' || query === '2' || query === '3') {
                         session.date = query === '1' ? '2026-07-14' : (query === '2' ? '2026-07-15' : '2026-07-20');
-                        botReply(`Fecha: ${session.date}.\nSelecciona el bloque horario de tu preferencia (RF-007):\n1. 08:30 - 09:00\n2. 09:30 - 10:00\n3. 11:30 - 12:00`);
+                        botReply(`Fecha: ${session.date}.\nSelecciona el bloque horario de tu preferencia:\n1. 08:30 - 09:00\n2. 09:30 - 10:00\n3. 11:30 - 12:00`);
                         session.state = STATES.CONFIRM_SUMMARY;
                     } else {
                         botReply("Opción incorrecta. Selecciona una fecha (1, 2 o 3):");
@@ -999,8 +999,8 @@
                     if (query === '1' || query === '2' || query === '3') {
                         session.hour = query === '1' ? '08:30' : (query === '2' ? '09:30' : '11:30');
                         
-                        // Summary Summary (RF-008)
-                        const summary = `📝 Resumen Ejecutivo de Cita (RF-008):\n• Paciente: ${session.name}\n• Sucursal: ${session.sucursal}\n• Especialidad: ${session.specialty}\n• Médico: ${session.doctor}\n• Fecha y Hora: ${session.date} ${session.hour}\n• Monto Copago: $25.00\n\n¿Los datos son correctos? Responde: SÍ o NO`;
+                        // Summary Summary
+                        const summary = `📝 Resumen Ejecutivo de Cita:\n• Paciente: ${session.name}\n• Sucursal: ${session.sucursal}\n• Especialidad: ${session.specialty}\n• Médico: ${session.doctor}\n• Fecha y Hora: ${session.date} ${session.hour}\n• Monto Copago: $25.00\n\n¿Los datos son correctos? Responde: SÍ o NO`;
                         botReply(summary);
                         session.state = STATES.PAYMENT_INSTRUCTIONS;
                     } else {
@@ -1010,8 +1010,8 @@
 
                 case STATES.PAYMENT_INSTRUCTIONS:
                     if (query === 'SÍ' || query === 'SI') {
-                        // Creación transaccional (RF-009)
-                        botReply("💾 Guardando cita de forma transaccional en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago (RF-010):\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en efectivo en recepción el día de tu cita.\n\n¡Gracias! Tu cita ha sido pre-agendada.");
+                        // Creación transaccional
+                        botReply("💾 Guardando cita de forma transaccional en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago:\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en efectivo en recepción el día de tu cita.\n\n¡Gracias! Tu cita ha sido pre-agendada.");
                         session.state = STATES.START;
                         
                         // Push log to HSM table on Dashboard
@@ -1024,7 +1024,7 @@
                     break;
 
                 case STATES.CANCELING:
-                    botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero bajo la política de devolución (100% reembolso por anticipación >4h - RF-011).`);
+                    botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero bajo la política de devolución (100% reembolso por anticipación >4h).`);
                     session.state = STATES.START;
                     break;
 
@@ -1036,7 +1036,7 @@
         }
 
         // =========================================
-        // AGENT HANDOFF CONTROLLER (RF-024)
+        // AGENT HANDOFF CONTROLLER
         // =========================================
         function triggerHandoffAlert() {
             botReply("⚠️ Transfiriendo chat a una Recepcionista Humana. El Bot automático ha sido pausado. En unos momentos serás atendido.");
