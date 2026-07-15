@@ -655,19 +655,21 @@
             // State Machine Logic
             switch (session.state) {
                 case STATES.START:
+                    botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
+                    session.state = STATES.REGISTRATION_CEDULA;
+                    break;
+
+                case STATES.PREFERENCIAS:
                     if (query === '1') {
                         session.prefReminders = !session.prefReminders;
                         botReply(`⚙️ Preferencia Actualizada: Recordatorios ahora están ${session.prefReminders ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
-                        updateLocalStorage();
-                        return;
                     } else if (query === '2') {
                         session.prefPromotions = !session.prefPromotions;
                         botReply(`⚙️ Preferencia Actualizada: Promociones ahora están ${session.prefPromotions ? 'HABILITADOS' : 'DESHABILITADOS'}.`, ["MENÚ"]);
-                        updateLocalStorage();
-                        return;
+                    } else {
+                        botReply("Opción incorrecta. Selecciona una preferencia para cambiar:", ["Alternar Recordatorios", "Alternar Promociones", "MENÚ"]);
                     }
-                    botReply("🏥 Bienvenido al Centro Médico Renacer.\nSelecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
-                    session.state = STATES.REGISTRATION_CEDULA;
+                    updateLocalStorage();
                     break;
 
                 case STATES.REGISTRATION_CEDULA:
