@@ -360,7 +360,7 @@
 
         // Temporary session storage
         let session = {
-            state: STATES.START,
+            state: STATES.REGISTRATION_CEDULA,
             history: [],
             phone: '0998765432',
             name: '',
@@ -429,7 +429,7 @@
             } else {
                 document.getElementById("botStatusText").textContent = "En línea | Agente automático";
                 botReply("🤖 Recepcionista devolvió el control al asistente virtual. Escribe MENÚ para ver opciones del bot.", ["MENÚ"]);
-                session.state = STATES.START;
+                session.state = STATES.REGISTRATION_CEDULA;
             }
         }
 
@@ -581,7 +581,7 @@
 
             if (query === 'STOP') {
                 session.optOut = true;
-                session.state = STATES.START;
+                session.state = STATES.REGISTRATION_CEDULA;
                 updateLocalStorage();
                 botReply("🚫 Has cancelado la suscripción de mensajería. No recibirás más notificaciones promocionales ni recordatorios. Escribe VOLVER para reactivar.", ["VOLVER"]);
                 return;
@@ -618,7 +618,7 @@
 
             // Intercept navigation and preferences commands (RF-016 & RF-021)
             if (query === 'MENÚ' || query === 'MENU') {
-                session.state = STATES.START;
+                session.state = STATES.REGISTRATION_CEDULA;
                 session.history = [];
                 updateLocalStorage();
                 botReply("🏠 Volviendo al Menú Principal. Selecciona una opción:", ["Agendar Cita", "Consultar Historial", "Cancelar Cita", "Solicitar Asistencia"]);
@@ -678,7 +678,7 @@
                         session.state = STATES.REGISTRATION_NAME;
                     } else if (query === '2') {
                         botReply("📋 Historial de Citas:\n1. Cita #app-1: 2026-07-15 Ginecología (Confirmada)\n2. Cita #app-2: 2026-07-16 Med. General (Pendiente Pago)", ["MENÚ"]);
-                        session.state = STATES.START;
+                        session.state = STATES.REGISTRATION_CEDULA;
                     } else if (query === '3') {
                         engineStep('CANCELAR');
                     } else {
@@ -794,7 +794,7 @@
                 case STATES.PAYMENT_INSTRUCTIONS:
                     if (query === 'SÍ' || query === 'SI') {
                         botReply("💾 Guardando cita en base de datos... Estado: PENDIENTE_PAGO.\n\n💳 Instrucciones de Pago:\nPor favor, realiza la transferencia del copago de $25.00 a la cuenta corriente Banco Pichincha #2200112233 a nombre de Centro Médico Renacer. Envía la captura del comprobante por este medio o paga en recepción.", ["MENÚ"]);
-                        session.state = STATES.START;
+                        session.state = STATES.REGISTRATION_CEDULA;
                         
                         // Push log to HSM table on Dashboard
                         localStorage.setItem('hsm_sent_trigger', JSON.stringify({
@@ -810,7 +810,7 @@
 
                 case STATES.CANCELING:
                     botReply(`Cita ${input} cancelada de forma exitosa. Se ha procedido a reembolsar su dinero (100% reembolso por anticipación >4h).`, ["MENÚ"]);
-                    session.state = STATES.START;
+                    session.state = STATES.REGISTRATION_CEDULA;
                     break;
 
                 case STATES.REPROGRAMMING:
